@@ -45,16 +45,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)..\..\Bin\$(Platform)\$(Configuration)\</OutDir>
-    <ExecutablePath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\bin;$(ProjectDir)..\..\Third\SeetaFace\x64;$(ExecutablePath)</ExecutablePath>
+    <ExecutablePath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\bin;$(ProjectDir)..\..\Third\SeetaFace\x64\bin;$(ExecutablePath)</ExecutablePath>
     <IncludePath>$(ProjectDir)..\..\Include;$(ProjectDir)..\..\Third\opencv_320\include;$(ProjectDir)..\..\Third\opencv_320\include\opencv;$(ProjectDir)..\..\Third\opencv_320\include\opencv2;$(ProjectDir)..\..\Third\SeetaFace\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\lib;$(ProjectDir)..\..\Third\SeetaFace\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\lib;$(ProjectDir)..\..\Third\SeetaFace\x64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)..\..\Bin\$(Platform)\$(Configuration)\</OutDir>
-    <ExecutablePath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\bin;$(ProjectDir)..\..\Third\SeetaFace\x64;$(ExecutablePath)</ExecutablePath>
+    <ExecutablePath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\bin;$(ProjectDir)..\..\Third\SeetaFace\x64\bin;$(ExecutablePath)</ExecutablePath>
     <IncludePath>$(ProjectDir)..\..\Include;$(ProjectDir)..\..\Third\opencv_320\include;$(ProjectDir)..\..\Third\opencv_320\include\opencv;$(ProjectDir)..\..\Third\opencv_320\include\opencv2;$(ProjectDir)..\..\Third\SeetaFace\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\lib;$(ProjectDir)..\..\Third\SeetaFace\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\lib;$(ProjectDir)..\..\Third\SeetaFace\x64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -62,12 +62,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_world320d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Identification_d.lib;opencv_world320d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -78,14 +78,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_world320.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Identification.lib;opencv_world320.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

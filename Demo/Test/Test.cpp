@@ -10,7 +10,6 @@ using namespace std;
 
 int main()
 {
-
+	cv::Mat abc;
     return 0;
 }
-
