@@ -46,14 +46,14 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)..\..\Bin\$(Platform)\$(Configuration)\</OutDir>
     <ExecutablePath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\bin;$(ProjectDir)..\..\Third\SeetaFace\x64\bin;$(ProjectDir)..\..\Third\libuv\release;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>$(ProjectDir)..\..\Include;$(ProjectDir)..\..\Third\opencv_320\include;$(ProjectDir)..\..\Third\opencv_320\include\opencv;$(ProjectDir)..\..\Third\opencv_320\include\opencv2;$(ProjectDir)..\..\Third\SeetaFace\include;D:\Program_Files\boost_1_61_0;$(ProjectDir)..\..\Third\webSocket;$(ProjectDir)..\..\Third\zlib;$(ProjectDir)..\..\Third\libuv\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\Include;$(ProjectDir)..\..\Third\opencv_320\include;$(ProjectDir)..\..\Third\opencv_320\include\opencv;$(ProjectDir)..\..\Third\opencv_320\include\opencv2;$(ProjectDir)..\..\Third\SeetaFace\include;D:\Program_Files\boost_1_61_0;$(ProjectDir)..\..\Third\webSocket;$(ProjectDir)..\..\Third\zlib;$(ProjectDir)..\..\Third\libuv\include;$(ProjectDir)..\..\Third\jsoncpp\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\lib;$(ProjectDir)..\..\Third\SeetaFace\x64\lib;$(ProjectDir)..\..\Third\openssl\lib;D:\Program_Files\boost_1_61_0\lib64-msvc-14.0;$(ProjectDir)..\..\Third\libuv\release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)..\..\Bin\$(Platform)\$(Configuration)\</OutDir>
     <ExecutablePath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\bin;$(ProjectDir)..\..\Third\SeetaFace\x64\bin;$(ProjectDir)..\..\Third\libuv\release;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>$(ProjectDir)..\..\Include;$(ProjectDir)..\..\Third\opencv_320\include;$(ProjectDir)..\..\Third\opencv_320\include\opencv;$(ProjectDir)..\..\Third\opencv_320\include\opencv2;$(ProjectDir)..\..\Third\SeetaFace\include;D:\Program_Files\boost_1_61_0;$(ProjectDir)..\..\Third\webSocket;$(ProjectDir)..\..\Third\zlib;$(ProjectDir)..\..\Third\libuv\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\Include;$(ProjectDir)..\..\Third\opencv_320\include;$(ProjectDir)..\..\Third\opencv_320\include\opencv;$(ProjectDir)..\..\Third\opencv_320\include\opencv2;$(ProjectDir)..\..\Third\SeetaFace\include;D:\Program_Files\boost_1_61_0;$(ProjectDir)..\..\Third\webSocket;$(ProjectDir)..\..\Third\zlib;$(ProjectDir)..\..\Third\libuv\include;$(ProjectDir)..\..\Third\jsoncpp\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\lib;$(ProjectDir)..\..\Third\SeetaFace\x64\lib;$(ProjectDir)..\..\Third\openssl\lib;D:\Program_Files\boost_1_61_0\lib64-msvc-14.0;$(ProjectDir)..\..\Third\libuv\release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

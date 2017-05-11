@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "uWS.h"
 #include "cv.h"
+#include "iostream"
 int main()
 {
 	uWS::Hub h;
@@ -12,6 +13,8 @@ int main()
 
 	group->onMessage([](uWS::WebSocket<uWS::SERVER> *ws, char *message, size_t length, uWS::OpCode opCode) {
 
+		std::cout << "message:" << message << std::endl;
+		std::cout << "opCode" << opCode << std::endl;
 		ws->send(message, length, opCode);
 
 	});
