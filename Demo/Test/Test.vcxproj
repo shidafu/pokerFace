@@ -44,14 +44,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\..\Bin\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(ProjectDir)..\..\Bin\$(Configuration)\</OutDir>
     <ExecutablePath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\bin;$(ProjectDir)..\..\Third\SeetaFace\x64\bin;$(ExecutablePath)</ExecutablePath>
     <IncludePath>$(ProjectDir)..\..\Include;$(ProjectDir)..\..\Third\opencv_320\include;$(ProjectDir)..\..\Third\opencv_320\include\opencv;$(ProjectDir)..\..\Third\opencv_320\include\opencv2;$(ProjectDir)..\..\Third\SeetaFace\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\lib;$(ProjectDir)..\..\Third\SeetaFace\x64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)..\..\Bin\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(ProjectDir)..\..\Bin\$(Configuration)\</OutDir>
     <ExecutablePath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\bin;$(ProjectDir)..\..\Third\SeetaFace\x64\bin;$(ExecutablePath)</ExecutablePath>
     <IncludePath>$(ProjectDir)..\..\Include;$(ProjectDir)..\..\Third\opencv_320\include;$(ProjectDir)..\..\Third\opencv_320\include\opencv;$(ProjectDir)..\..\Third\opencv_320\include\opencv2;$(ProjectDir)..\..\Third\SeetaFace\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\lib;$(ProjectDir)..\..\Third\SeetaFace\x64\lib;$(LibraryPath)</LibraryPath>
@@ -67,7 +67,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Identification_d.lib;opencv_world320d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FaceDetection_d.lib;FaceAlignment_d.lib;Identification_d.lib;opencv_world320d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -85,13 +85,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Identification.lib;opencv_world320.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FaceDetection.lib;FaceAlignment.lib;Identification.lib;opencv_world320.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Include\face_tools.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
