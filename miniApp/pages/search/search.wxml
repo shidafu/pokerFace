@@ -1,0 +1,45 @@
+
+<!--pages/search/search.wxml-->
+<form bindsubmit="searchDouban">
+  <view class="weui-cells weui-cells_after-title">
+    <view class="weui-cell weui-cell_input">
+      <view class="weui-cell__bd">
+        <input name="keyword" focus="true" class="weui-input" id="search" placeholder="请输入剧名"  />
+      </view>
+      <view class="weui-cell__ft">
+        <button form-type="submit" class="weui-btn mini-btn" style="vertical-align:middle" size="mini" type="primary">搜索</button>
+      </view>
+    </view>
+  </view>
+</form>
+<view class="weui-loadmore" wx:if="{{loading}}">
+  <view class="weui-loading"></view>
+  <view class="weui-loadmore__tips">正在加载</view>
+</view>
+<view class="classname" wx:if="{{afterSearch}}">
+  <view class="classname" wx:if="{{loadSuccess}}">
+    <view class="classname" wx:if="{{searchResult.length == 0}}">
+      <view class="weui-loadmore weui-loadmore_line">
+        <view class="weui-loadmore__tips weui-loadmore__tips_in-line">无搜索结果</view>
+      </view>
+    </view>
+  </view>
+  <view class="classname" wx:else>
+    <view class="weui-loadmore weui-loadmore_line">
+      <view class="weui-loadmore__tips weui-loadmore__tips_in-line">载入失败 请重试</view>
+    </view>
+  </view>
+</view>
+<view class="weui-panel weui-panel_access">
+  <view class="weui-panel__bd">
+    <view wx:for="{{searchResult}}" wx:if="{{item.subtype == 'tv'}}" data-tvid="{{item.id}}" bindtap="goToDetail" class="weui-media-box weui-media-box_appmsg" hover-class="weui-cell_active">
+      <view class="weui-media-box__hd weui-media-box__hd_in-appmsg">
+        <image class="weui-media-box__thumb" src="{{item.images.small}}" />
+      </view>
+      <view class="weui-media-box__bd weui-media-box__bd_in-appmsg">
+        <view class="weui-media-box__title">{{item.title}}</view>
+        <view class="weui-media-box__desc">年份：{{item.year}} 评分：{{item.rating.average}}</view>
+      </view>
+    </view>
+  </view>
+</view>

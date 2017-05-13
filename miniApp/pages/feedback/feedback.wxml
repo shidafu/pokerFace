@@ -1,0 +1,12 @@
+<view class="page" xmlns:wx="http://www.w3.org/1999/xhtml">
+  <view class="page__hd">
+    <view class="page__title">使用反馈</view>
+    <view class="page__desc"><text class="feedback_info">如果你有任何使用上的疑惑、小程序存在bug、改进的建议等等话想说，请发email：tsycnh@126.com，我会仔细看每一位朋友的来信。
+    也可加我个人微信：Stanley_Tian 请注明：极简追剧</text></view>
+  </view>
+  <view class="page__bd">
+    <view class="weui-btn-area">
+      <button class="weui-btn" type="primary" bindtap="goBack">返回主页</button>
+    </view>
+  </view>
+</view>

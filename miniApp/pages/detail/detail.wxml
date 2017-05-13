@@ -1,0 +1,55 @@
+
+<!--pages/detail/detail.wxml-->
+<view class="page">
+  <view class="weui-loadmore" wx:if="{{loading}}">
+    <view class="weui-loading"></view>
+    <view class="weui-loadmore__tips">正在加载</view>
+  </view>
+  <view wx:else>
+    <view class="page__hd">
+      <view class="page__title" style="text-align:center">{{detail.title}}</view>
+      <view class="page__desc" style="text-align:center">
+        年份：{{detail.year}} 豆瓣评分：{{detail.rating.average}}
+      </view>
+    </view>
+    <view class="page__bd page__bd_spacing">
+      <article class="classname">
+        <image style="width:100%" mode="aspectFit" src="{{detail.images.large}}"></image>
+      </article>
+      <view class="" wx:if="{{follwing}}">
+      </view>
+      <view wx:if="{{following == true}}">
+        <view class="weui-cells__title">
+          <block wx:if="{{detail.episodes_count > 0}}">
+            本季共 {{detail.episodes_count}} 集
+          </block>
+          <block wx:else>
+            本剧总集数未知，请手动输入
+          </block>
+        </view>
+        <view class="weui-cells weui-cells_after-title">
+          <view class="weui-cell weui-cell_select">
+            <view class="weui-cell__hd weui-cell__hd_in-select-after">
+              <view class="weui-label">该看第?集</view>
+            </view>
+            <view class="weui-cell__bd">
+              <block wx:if="{{detail.episodes_count > 0}}">
+                <picker value="{{index}}" range="{{episodes}}" bindchange="pickerChanged">
+                  <view class="weui-select weui-select_in-select-after">{{episodes[index]}}</view>
+                </picker>
+              </block>
+              <block wx:else>
+                <input bindinput="setCurrentManualEpisode" value="{{manual_episode_to_watch}}" class="weui-input" placeholder="请输入集数" />
+              </block>
+            </view>
+          </view>
+        </view>
+        <button class="weui-btn" type="primary" bindtap="updateTv">更新追剧历史</button>
+        <button class="weui-btn" type="warn" bindtap="deleteTv">删除此剧</button>
+      </view>
+      <view wx:else>
+        <button class="weui-btn" type="primary" bindtap="addTv">追此剧</button>
+      </view>
+    </view>
+  </view>
+</view>
