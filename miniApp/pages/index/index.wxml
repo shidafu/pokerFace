@@ -1,26 +1,11 @@
 <view class="container">
-  <navigator class="tv-box weui-flex" url="/pages/detail/detail?id={{item.id}}" wx:for="{{allTv}}">
-    <view class="tv-content-left">
-      <view class="weui-flex tv-title">
-        {{item.name}}
-      </view>
-      <view class="weui-flex tv-follow">
-        <block wx:if="{{item.episodesCount > 0}}">
-          <view class="weui-flex__item">该看第 {{item.episodeToWatch}} 集　</view>
-          <view class="weui-flex__item">本季共 {{item.episodesCount}} 集</view>
-        </block>
-        <block wx:else>
-          <view class="weui-flex__item">该看 {{item.episodeToWatch}}　</view>
-        </block>
-      </view>
-    </view>
-    <image class="tv-cover" mode="aspectFill" src="{{item.imageUrl}}" />
-  </navigator>
   <image id="identityImage" mode="aspectFit" src="{{identityImageSrc}}"></image>
-  <button bindtap="addIdentifyImage" name="keyword"  type="default" id="addIdentifyImage">添加身份证照片</button>
+  <button bindtap="addIdentifyImage"  type="default" id="addIdentifyImage">添加身份证照片</button>
   <image id="selfie" mode="aspectFit" src="{{selfieSrc}}"></image>
-  <button bindtap="addSelfie" name="keyword" type="default" id="addSelfie">添加自拍照</button>
-  <button bindtap="compare" name="keyword" class="weui-btn" type="primary" id="compare">开始检测</button>
+  <button bindtap="addSelfie"  type="default" id="addSelfie">添加自拍照</button>
+  <button bindtap="compare" class="weui-btn" type="primary" id="compare">开始检测</button>
+  <!--<button bindtap="testResponse" type="default" >test response</button>-->
+
   <view></view>
 </view>
 <view class="page">
