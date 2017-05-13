@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="..\..\Third\zlib\adler32.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\compress.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\crc32.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\deflate.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\webSocket\Epoll.cpp">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\webSocket\Extensions.cpp">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\webSocket\Group.cpp">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\gzclose.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\gzlib.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\gzread.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\gzwrite.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\webSocket\HTTPSocket.cpp">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\webSocket\Hub.cpp">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\infback.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\inffast.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\inflate.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\inftrees.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\webSocket\Networking.cpp">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\webSocket\Node.cpp">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\webSocket\Socket.cpp">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\trees.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\uncompr.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\webSocket\WebSocket.cpp">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Third\zlib\zutil.c">
+      <Filter>webSocket</Filter>
+    </ClCompile>
+    <ClCompile Include="RelayServer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="..\..\Third\zlib\zutil.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\Asio.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\Backend.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\zlib\crc32.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\zlib\deflate.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\Epoll.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\Extensions.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\Group.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\zlib\gzguts.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\HTTPSocket.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\Hub.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\zlib\inffast.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\zlib\inffixed.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\zlib\inflate.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\zlib\inftrees.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\Libuv.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\Networking.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\Node.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\Socket.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\zlib\trees.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\uWS.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\WebSocket.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\webSocket\WebSocketProtocol.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\zlib\zconf.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Third\zlib\zlib.h">
+      <Filter>webSocket</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="webSocket">
+      <UniqueIdentifier>{cab627be-4675-47c2-91fc-7ab2785c6ba8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt">
+      <Filter>webSocket</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
