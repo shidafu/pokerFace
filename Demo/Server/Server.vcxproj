@@ -67,7 +67,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Identification_d.lib;opencv_world320d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);4758cca.lib;aep.lib;atalla.lib;capi.lib;chil.lib;cswift.lib;gmp.lib;gost.lib;libeay32.lib;nuron.lib;padlock.lib;ssleay32.lib;sureware.lib;ubsec.lib;libuv.lib;lib_jsond.lib</AdditionalDependencies>
+      <AdditionalDependencies>FaceDetection_d.lib;FaceAlignment_d.lib;Identification_d.lib;opencv_world320d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);4758cca.lib;aep.lib;atalla.lib;capi.lib;chil.lib;cswift.lib;gmp.lib;gost.lib;libeay32.lib;nuron.lib;padlock.lib;ssleay32.lib;sureware.lib;ubsec.lib;libuv.lib;lib_jsond.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -85,13 +85,15 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Identification.lib;opencv_world320.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);4758cca.lib;aep.lib;atalla.lib;capi.lib;chil.lib;cswift.lib;gmp.lib;gost.lib;libeay32.lib;nuron.lib;padlock.lib;ssleay32.lib;sureware.lib;ubsec.lib;libuv.lib;lib_json.lib</AdditionalDependencies>
+      <AdditionalDependencies>FaceDetection.lib;FaceAlignment.lib;Identification.lib;opencv_world320.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);4758cca.lib;aep.lib;atalla.lib;capi.lib;chil.lib;cswift.lib;gmp.lib;gost.lib;libeay32.lib;nuron.lib;padlock.lib;ssleay32.lib;sureware.lib;ubsec.lib;libuv.lib;lib_json.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Include\face_tools.hpp" />
+    <ClInclude Include="..\..\Include\image_tools.hpp" />
     <ClInclude Include="..\..\Third\zlib\crc32.h" />
     <ClInclude Include="..\..\Third\zlib\deflate.h" />
     <ClInclude Include="..\..\Third\zlib\gzguts.h" />

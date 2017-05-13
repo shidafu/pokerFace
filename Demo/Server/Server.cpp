@@ -8,13 +8,18 @@
 #include <websocketpp/config/asio.hpp>
 #include <websocketpp/config/asio_no_tls_client.hpp>
 
-#include "cv.h"
+//#include "cv.h"
+#include <cv.hpp>
+#include "image_tools.hpp"
+#include "face_tools.hpp"
+#include "common_tools.hpp"
+
 #include "stdafx.h"
 #include "json.h"
 #include <iostream>
 
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
+//#include "opencv2/imgproc/imgproc.hpp"
+//#include "opencv2/highgui/highgui.hpp"
 #include <boost/timer.hpp>
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
@@ -44,6 +49,8 @@ typedef websocketpp::lib::shared_ptr<websocketpp::lib::asio::ssl::context> conte
 // "sourceHDL" = "0000asdff234"
 // "resultState" = "ok"
 // "resultValue" = "0.56"
+
+
 
 cv::Mat base64toMat(std::string base64str)
 {
@@ -85,6 +92,8 @@ websocketpp::connection_hdl computServerHDL;
 std::vector<websocketpp::connection_hdl> clientHDLvec;
 
 
+tools::faceDetector face_detector;
+tools::faceCompare face_compare;
 
 void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 	std::string mmsg = msg->get_payload();
@@ -118,8 +127,8 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 		{
 			std::string pic1str = root.get("pic1Data", "").asString();
 			std::string pic2str = root.get("pic2Data", "").asString();
-			cv::Mat mat1 = base64toMat(pic1str);
-			cv::Mat mat2 = base64toMat(pic2str);
+			cv::Mat img1 = base64toMat(pic1str);
+			cv::Mat img2 = base64toMat(pic2str);
 			Json::Value Jsvalue;
 			Jsvalue["requestType"] = "replyFace";
 			try
@@ -127,6 +136,49 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 				float r=0.01;
 				//算法部分
 				std::cout << "进行算法运算" << std::endl;
+
+				//Load images
+				seeta::ImageData img_data1(img1.cols, img1.rows, img1.channels());
+				img_data1.data = img1.data;
+				cv::Mat gray_img1;
+				cv::cvtColor(img1, gray_img1, CV_RGB2GRAY);
+				seeta::ImageData gray_img_data1(gray_img1.cols, gray_img1.rows, gray_img1.channels());
+				gray_img_data1.data = gray_img1.data;
+
+				seeta::ImageData img_data2(img2.cols, img2.rows, img2.channels());
+				img_data2.data = img2.data;
+				cv::Mat gray_img2;
+				cv::cvtColor(img2, gray_img2, CV_RGB2GRAY);
+				seeta::ImageData gray_img_data2(gray_img2.cols, gray_img2.rows, gray_img2.channels());
+				gray_img_data2.data = gray_img2.data;
+
+				// Detect face.
+				std::vector <seeta::FaceInfo> face_info1;
+				std::vector <tools::faceLandMark> face_marks1;
+				long t0 = cv::getTickCount();
+				bool isOK = face_detector.detect(gray_img_data1, face_info1, face_marks1);
+				long t1 = cv::getTickCount();
+				double secs = (t1 - t0) / cv::getTickFrequency();
+				std::cout << "Detect: " << face_info1.size() << " face,take " << secs << " seconds." << std::endl;
+
+				std::vector <seeta::FaceInfo> face_info2;
+				std::vector <tools::faceLandMark> face_marks2;
+				t0 = cv::getTickCount();
+				isOK = face_detector.detect(gray_img_data2, face_info2, face_marks2);
+				t1 = cv::getTickCount();
+				secs = (t1 - t0) / cv::getTickFrequency();
+				std::cout << "Detect: " << face_info2.size() << " face,take " << secs << " seconds." << std::endl;
+
+				if (face_marks1.size() > 0 && face_marks2.size() > 0)
+				{
+					t0 = cv::getTickCount();
+					r = face_compare.compare(img_data1, img_data2, face_marks1.at(0).mark, face_marks2.at(0).mark);
+					t1 = cv::getTickCount();
+					secs = (t1 - t0) / cv::getTickFrequency();
+					std::cout << "Compare: similar=" << r << " ,take " << secs << " seconds." << std::endl;
+				}
+
+
 				//算法部分结束
 				Jsvalue["resultState"] = "ok";
 				Jsvalue["resultValue"] = r;
@@ -262,8 +314,21 @@ void connectRelayServer()
 
 
 
-int main()
+int main(int argc, char* argv[])
 {
+	//Load faceTool.
+	std::string exe_fullpath_str = argv[0];
+	char exe_path[512];
+	tools::full_to_path(argv[0], exe_path, 512);
+	std::string exe_path_str = exe_path;
+	tools::faceDetector face_detector;
+	face_detector.initial(tools::accept_size_3X2,
+		(exe_path_str + "seeta_fd_frontal_v1.0.bin").c_str(),
+		(exe_path_str + "seeta_fa_v1.1.bin").c_str());
+	tools::faceCompare face_compare;
+	face_compare.initial(tools::accept_size_3X2,
+		(exe_path_str + "seeta_fr_v1.0.bin").c_str());
+
 	int connetTryCuont = 0;
 	while (true)
 	{
