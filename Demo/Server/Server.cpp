@@ -135,6 +135,8 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 			{
 				float r=0.01;
 				//算法部分
+
+
 				std::cout << "进行算法运算" << std::endl;
 
 				//Load images
