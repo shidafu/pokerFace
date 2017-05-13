@@ -35,14 +35,14 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	std::string filePath;
-	std::vector<std::string> fileNameList;
-	int fileIndex1, fileIndex2;
+	std::string imgFileStr1, imgFileStr2;
 	cv::Mat image1, image2;
 	std::string imgWndStr1, imgWndStr2;
 
 
-	void Update();
+	void Update(int index=-1);
 
-	afx_msg void OnBnClickedPathBtn();
+	afx_msg void OnBnClickedImgBtn1();
+	afx_msg void OnBnClickedImgBtn2();
+	afx_msg void OnBnClickedCopBtn();
 };

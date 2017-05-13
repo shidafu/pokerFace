@@ -63,7 +63,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -112,7 +112,11 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Include\common_tools.hpp" />
+    <ClInclude Include="..\..\Include\face_tools.hpp" />
+    <ClInclude Include="..\..\Include\image_tools.hpp" />
     <ClInclude Include="..\..\Include\mformat.hpp" />
+    <ClInclude Include="CommonFunc.h" />
     <ClInclude Include="PokerFace.h" />
     <ClInclude Include="PokerFaceDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -120,6 +124,9 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CommonFunc.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="PokerFace.cpp" />
     <ClCompile Include="PokerFaceDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
