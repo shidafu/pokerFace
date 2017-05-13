@@ -1,0 +1,14 @@
+{
+  "pages":[
+    "pages/index/index",
+    "pages/search/search",
+    "pages/detail/detail",
+    "pages/feedback/feedback"
+  ],
+  "window":{
+    "backgroundTextStyle":"light",
+    "navigationBarBackgroundColor": "#fbf9fe",
+    "navigationBarTitleText": "身份证检测demo",
+    "navigationBarTextStyle":"black"
+  }
+}

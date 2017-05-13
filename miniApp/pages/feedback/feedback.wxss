@@ -1,0 +1,5 @@
+/* pages/feedback/feedback.wxss */
+.feedback_info{
+    font-size: 17px;
+    color: #353535;
+}
