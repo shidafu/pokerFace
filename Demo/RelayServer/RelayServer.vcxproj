@@ -44,14 +44,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\..\Bin\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(ProjectDir)..\..\Bin\$(Configuration)\</OutDir>
     <ExecutablePath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\bin;$(ProjectDir)..\..\Third\SeetaFace\x64\bin;$(ProjectDir)..\..\Third\libuv\release;$(ExecutablePath)</ExecutablePath>
     <IncludePath>$(ProjectDir)..\..\Include;$(ProjectDir)..\..\Third\opencv_320\include;$(ProjectDir)..\..\Third\opencv_320\include\opencv;$(ProjectDir)..\..\Third\opencv_320\include\opencv2;$(ProjectDir)..\..\Third\SeetaFace\include;D:\Program_Files\boost_1_61_0;$(ProjectDir)..\..\Third\webSocket;$(ProjectDir)..\..\Third\zlib;$(ProjectDir)..\..\Third\libuv\include;$(ProjectDir)..\..\Third\jsoncpp\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\lib;$(ProjectDir)..\..\Third\SeetaFace\x64\lib;$(ProjectDir)..\..\Third\openssl\lib;D:\Program_Files\boost_1_61_0\lib64-msvc-14.0;$(ProjectDir)..\..\Third\libuv\release;$(ProjectDir)..\..\Third\jsoncpp\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)..\..\Bin\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(ProjectDir)..\..\Bin\$(Configuration)\</OutDir>
     <ExecutablePath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\bin;$(ProjectDir)..\..\Third\SeetaFace\x64\bin;$(ProjectDir)..\..\Third\libuv\release;$(ExecutablePath)</ExecutablePath>
     <IncludePath>$(ProjectDir)..\..\Include;$(ProjectDir)..\..\Third\opencv_320\include;$(ProjectDir)..\..\Third\opencv_320\include\opencv;$(ProjectDir)..\..\Third\opencv_320\include\opencv2;$(ProjectDir)..\..\Third\SeetaFace\include;D:\Program_Files\boost_1_61_0;$(ProjectDir)..\..\Third\webSocket;$(ProjectDir)..\..\Third\zlib;$(ProjectDir)..\..\Third\libuv\include;$(ProjectDir)..\..\Third\jsoncpp\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\lib;$(ProjectDir)..\..\Third\SeetaFace\x64\lib;$(ProjectDir)..\..\Third\openssl\lib;D:\Program_Files\boost_1_61_0\lib64-msvc-14.0;$(ProjectDir)..\..\Third\libuv\release;$(ProjectDir)..\..\Third\jsoncpp\lib;$(LibraryPath)</LibraryPath>
@@ -89,62 +89,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\Third\webSocket\Asio.h" />
-    <ClInclude Include="..\..\Third\webSocket\Backend.h" />
-    <ClInclude Include="..\..\Third\webSocket\Epoll.h" />
-    <ClInclude Include="..\..\Third\webSocket\Extensions.h" />
-    <ClInclude Include="..\..\Third\webSocket\Group.h" />
-    <ClInclude Include="..\..\Third\webSocket\HTTPSocket.h" />
-    <ClInclude Include="..\..\Third\webSocket\Hub.h" />
-    <ClInclude Include="..\..\Third\webSocket\Libuv.h" />
-    <ClInclude Include="..\..\Third\webSocket\Networking.h" />
-    <ClInclude Include="..\..\Third\webSocket\Node.h" />
-    <ClInclude Include="..\..\Third\webSocket\Socket.h" />
-    <ClInclude Include="..\..\Third\webSocket\uWS.h" />
-    <ClInclude Include="..\..\Third\webSocket\WebSocket.h" />
-    <ClInclude Include="..\..\Third\webSocket\WebSocketProtocol.h" />
-    <ClInclude Include="..\..\Third\zlib\crc32.h" />
-    <ClInclude Include="..\..\Third\zlib\deflate.h" />
-    <ClInclude Include="..\..\Third\zlib\gzguts.h" />
-    <ClInclude Include="..\..\Third\zlib\inffast.h" />
-    <ClInclude Include="..\..\Third\zlib\inffixed.h" />
-    <ClInclude Include="..\..\Third\zlib\inflate.h" />
-    <ClInclude Include="..\..\Third\zlib\inftrees.h" />
-    <ClInclude Include="..\..\Third\zlib\trees.h" />
-    <ClInclude Include="..\..\Third\zlib\zconf.h" />
-    <ClInclude Include="..\..\Third\zlib\zlib.h" />
-    <ClInclude Include="..\..\Third\zlib\zutil.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Third\webSocket\Epoll.cpp" />
-    <ClCompile Include="..\..\Third\webSocket\Extensions.cpp" />
-    <ClCompile Include="..\..\Third\webSocket\Group.cpp" />
-    <ClCompile Include="..\..\Third\webSocket\HTTPSocket.cpp" />
-    <ClCompile Include="..\..\Third\webSocket\Hub.cpp" />
-    <ClCompile Include="..\..\Third\webSocket\Networking.cpp" />
-    <ClCompile Include="..\..\Third\webSocket\Node.cpp" />
-    <ClCompile Include="..\..\Third\webSocket\Socket.cpp" />
-    <ClCompile Include="..\..\Third\webSocket\WebSocket.cpp" />
-    <ClCompile Include="..\..\Third\zlib\adler32.c" />
-    <ClCompile Include="..\..\Third\zlib\compress.c" />
-    <ClCompile Include="..\..\Third\zlib\crc32.c" />
-    <ClCompile Include="..\..\Third\zlib\deflate.c" />
-    <ClCompile Include="..\..\Third\zlib\gzclose.c" />
-    <ClCompile Include="..\..\Third\zlib\gzlib.c" />
-    <ClCompile Include="..\..\Third\zlib\gzread.c" />
-    <ClCompile Include="..\..\Third\zlib\gzwrite.c" />
-    <ClCompile Include="..\..\Third\zlib\infback.c" />
-    <ClCompile Include="..\..\Third\zlib\inffast.c" />
-    <ClCompile Include="..\..\Third\zlib\inflate.c" />
-    <ClCompile Include="..\..\Third\zlib\inftrees.c" />
-    <ClCompile Include="..\..\Third\zlib\trees.c" />
-    <ClCompile Include="..\..\Third\zlib\uncompr.c" />
-    <ClCompile Include="..\..\Third\zlib\zutil.c" />
     <ClCompile Include="RelayServer.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

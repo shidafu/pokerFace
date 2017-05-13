@@ -41,8 +41,8 @@ namespace tools
 		{
 			int in_width = inImg.cols;
 			int in_height = inImg.rows;
-			double in_ratio = in_height / in_width;
-			double out_ratio = accept_size.img_height / accept_size.img_width;
+			double in_ratio = (double)in_height / (double)in_width;
+			double out_ratio = (double)accept_size.img_height / (double)accept_size.img_width;
 			if (in_ratio>out_ratio)
 			{
 				int in_height_fix = (int)in_width * out_ratio;

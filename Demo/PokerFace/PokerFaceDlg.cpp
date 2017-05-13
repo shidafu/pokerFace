@@ -6,6 +6,11 @@
 #include "PokerFace.h"
 #include "PokerFaceDlg.h"
 #include "afxdialogex.h"
+#include "mformat.hpp"
+#include "common_tools.hpp"
+#include "face_tools.hpp"
+#include "mformat.hpp"
+#include "image_tools.hpp"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -28,7 +33,9 @@ BEGIN_MESSAGE_MAP(CPokerFaceDlg, CDialog)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_PATH_BTN, &CPokerFaceDlg::OnBnClickedPathBtn)
+	ON_BN_CLICKED(IDC_IMG_BTN_1, &CPokerFaceDlg::OnBnClickedImgBtn1)
+	ON_BN_CLICKED(IDC_IMG_BTN_2, &CPokerFaceDlg::OnBnClickedImgBtn2)
+	ON_BN_CLICKED(IDC_COP_BTN, &CPokerFaceDlg::OnBnClickedCopBtn)
 END_MESSAGE_MAP()
 
 
@@ -107,42 +114,193 @@ HCURSOR CPokerFaceDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-void CPokerFaceDlg::Update()
+void CPokerFaceDlg::Update(int index)
 {
-	if (!image1.empty())
+	if (index==-1)
 	{
-		CRect rect1;
-		GetDlgItem(IDC_IMG_STC_1)->GetClientRect(&rect1);
-		//cv::Rect dstRect1(rect1.left, rect1.top, rect1.right, rect1.bottom);
-		//cv::Size srcSize1(image1.cols, image1.rows);
-		cv::Mat imagedst1;
-		cv::resize(image1, imagedst1, cv::Size(rect1.Width(), rect1.Height()));
-		cv::imshow(imgWndStr1, imagedst1);
-	}
-	if (!image2.empty())
+		if (!image1.empty())
+		{
+			CRect rect1;
+			GetDlgItem(IDC_IMG_STC_1)->GetClientRect(&rect1);
+			//cv::Rect dstRect1(rect1.left, rect1.top, rect1.right, rect1.bottom);
+			//cv::Size srcSize1(image1.cols, image1.rows);
+			cv::Mat imagedst1;
+			cv::resize(image1, imagedst1, cv::Size(rect1.Width(), rect1.Height()));
+			cv::imshow(imgWndStr1, imagedst1);
+		}
+		if (!image2.empty())
+		{
+			CRect rect2;
+			GetDlgItem(IDC_IMG_STC_2)->GetClientRect(&rect2);
+			cv::Mat imagedst2;
+			cv::resize(image2, imagedst2, cv::Size(rect2.Width(), rect2.Height()));
+			cv::imshow(imgWndStr2, imagedst2);
+		}
+	} 
+	else if (index==0)
 	{
-		CRect rect2;
-		GetDlgItem(IDC_IMG_STC_2)->GetClientRect(&rect2);
-		cv::Mat imagedst2;
-		cv::resize(image2, imagedst2, cv::Size(rect2.Width(), rect2.Height()));
-		cv::imshow(imgWndStr2, imagedst2);
+		if (!image1.empty())
+		{
+			CRect rect1;
+			GetDlgItem(IDC_IMG_STC_1)->GetClientRect(&rect1);
+			//cv::Rect dstRect1(rect1.left, rect1.top, rect1.right, rect1.bottom);
+			//cv::Size srcSize1(image1.cols, image1.rows);
+			cv::Mat imagedst1;
+			cv::resize(image1, imagedst1, cv::Size(rect1.Width(), rect1.Height()));
+			cv::imshow(imgWndStr1, imagedst1);
+		}
 	}
-
+	else if (index==1)
+	{
+		if (!image2.empty())
+		{
+			CRect rect2;
+			GetDlgItem(IDC_IMG_STC_2)->GetClientRect(&rect2);
+			cv::Mat imagedst2;
+			cv::resize(image2, imagedst2, cv::Size(rect2.Width(), rect2.Height()));
+			cv::imshow(imgWndStr2, imagedst2);
+		}
+	}
 }
 
-void CPokerFaceDlg::OnBnClickedPathBtn()
+
+void CPokerFaceDlg::OnBnClickedImgBtn1()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	CString StrFile;
-	CString defExe("txt");
-	CString defFileName("*.txt");
-	CString defFilter("文本文档(*.txt)|*.txt|所有文件(*.*)|*.*|");
+	CString defExe("jpg");
+	CString defFileName("*.jpg");
+	CString defFilter("图像(*.jpg)|*.jpg|所有文件(*.*)|*.*|");
 	CFileDialog dlg(true, defExe, defFileName, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, defFilter);
 	dlg.m_ofn.lpstrInitialDir = _T(".\\");
 	if (dlg.DoModal() == IDOK)
 	{
-		StrFile = dlg.GetFolderPath();
+		StrFile = dlg.GetPathName();
 		// do something
+		imgFileStr1 = tools::ws_to_s(StrFile.GetString());
+		cv::Mat tmpImg = cv::imread(imgFileStr1);
+		tools::corp_size(tmpImg, image1, tools::accept_size_4X3);
+		Update(0);
+	}
+}
 
+
+void CPokerFaceDlg::OnBnClickedImgBtn2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CString StrFile;
+	CString defExe("jpg");
+	CString defFileName("*.jpg");
+	CString defFilter("图像(*.jpg)|*.jpg|所有文件(*.*)|*.*|");
+	CFileDialog dlg(true, defExe, defFileName, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, defFilter);
+	dlg.m_ofn.lpstrInitialDir = _T(".\\");
+	if (dlg.DoModal() == IDOK)
+	{
+		StrFile = dlg.GetPathName();
+		// do something
+		imgFileStr2 = tools::ws_to_s(StrFile.GetString());
+		cv::Mat tmpImg = cv::imread(imgFileStr2);
+		tools::corp_size(tmpImg, image2, tools::accept_size_4X3);
+		Update(1);
+	}
+}
+
+
+void CPokerFaceDlg::OnBnClickedCopBtn()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	//Load faceTool.
+	std::string exe_path_str = tools::app_path();
+	tools::faceDetector face_detector;
+	face_detector.initial(tools::accept_size_3X2,
+		(exe_path_str + "\\seeta_fd_frontal_v1.0.bin").c_str(),
+		(exe_path_str + "\\seeta_fa_v1.1.bin").c_str());
+	tools::faceCompare face_compare;
+	face_compare.initial(tools::accept_size_3X2,
+		(exe_path_str + "\\seeta_fr_v1.0.bin").c_str());
+
+	int imageNum = 0;
+	if (!image1.empty()) imageNum++;
+	if (!image2.empty()) imageNum++;
+
+	//Deal different call.
+	if (imageNum == 0) return;
+	else if (imageNum == 1) return;
+	else if (imageNum == 2)
+	{
+		//Load images
+		seeta::ImageData img_data1(image1.cols, image1.rows, image1.channels());
+		img_data1.data = image1.data;
+		cv::Mat gray_img1;
+		cv::cvtColor(image1, gray_img1, CV_RGB2GRAY);
+		seeta::ImageData gray_img_data1(gray_img1.cols, gray_img1.rows, gray_img1.channels());
+		gray_img_data1.data = gray_img1.data;
+
+		seeta::ImageData img_data2(image2.cols, image2.rows, image2.channels());
+		img_data2.data = image2.data;
+		cv::Mat gray_img2;
+		cv::cvtColor(image2, gray_img2, CV_RGB2GRAY);
+		seeta::ImageData gray_img_data2(gray_img2.cols, gray_img2.rows, gray_img2.channels());
+		gray_img_data2.data = gray_img2.data;
+
+		// Detect face.
+		std::vector <seeta::FaceInfo> face_info1;
+		std::vector <tools::faceLandMark> face_marks1;
+		long t0 = cv::getTickCount();
+		bool isOK = face_detector.detect(gray_img_data1, face_info1, face_marks1);
+		long t1 = cv::getTickCount();
+		double secs = (t1 - t0) / cv::getTickFrequency();
+
+		std::vector <seeta::FaceInfo> face_info2;
+		std::vector <tools::faceLandMark> face_marks2;
+		t0 = cv::getTickCount();
+		isOK = face_detector.detect(gray_img_data2, face_info2, face_marks2);
+		t1 = cv::getTickCount();
+		secs = (t1 - t0) / cv::getTickFrequency();
+		float similar=0;
+		if (face_marks1.size() > 0 && face_marks2.size() > 0)
+		{
+			t0 = cv::getTickCount();
+			similar = face_compare.compare(img_data1, img_data2, face_marks1.at(0).mark, face_marks2.at(0).mark);
+			t1 = cv::getTickCount();
+			secs = (t1 - t0) / cv::getTickFrequency();
+			//MessageBoxA(0, ("Similaraty=" + similarStr).c_str(), "Similaraty", MB_OK);
+		}
+
+		// Show detected face
+		for (int i = 0; i < face_info1.size(); i++)
+		{
+			cv::Rect face_rect;
+			face_rect.x = face_info1[i].bbox.x;
+			face_rect.y = face_info1[i].bbox.y;
+			face_rect.width = face_info1[i].bbox.width;
+			face_rect.height = face_info1[i].bbox.height;
+			cv::rectangle(image1, face_rect, CV_RGB(0, 255, 255), 2, 8, 0);
+			for (int k = 0; k < 5; k++)
+			{
+				cv::circle(image1, cv::Point(face_marks1.at(i).mark[k].x, face_marks1.at(i).mark[k].y), 4,
+					CV_RGB(0, 255, 255), 2);
+			}
+		}
+		Update(0);
+		for (int i = 0; i < face_info2.size(); i++)
+		{
+			cv::Rect face_rect;
+			face_rect.x = face_info2[i].bbox.x;
+			face_rect.y = face_info2[i].bbox.y;
+			face_rect.width = face_info2[i].bbox.width;
+			face_rect.height = face_info2[i].bbox.height;
+			cv::rectangle(image2, face_rect, CV_RGB(0, 255, 255), 2, 8, 0);
+			for (int k = 0; k < 5; k++)
+			{
+				cv::circle(image2, cv::Point(face_marks2.at(i).mark[k].x, face_marks2.at(i).mark[k].y), 4,
+					CV_RGB(0, 255, 255), 2);
+			}
+		}
+		Update(1);
+
+		std::string similarStr = tools::f_to_s(similar);
+		MessageBoxA(0, ("Similaraty=" + similarStr).c_str(), "Similaraty", MB_OK);
+		//cv::waitKey(0);
 	}
 }
