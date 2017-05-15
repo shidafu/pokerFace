@@ -13,6 +13,7 @@
 #include "face_alignment.h"
 #include "face_identification.h"
 #include "common.h"
+#include <cv.hpp>
 namespace tools
 {
 #ifndef SIZE_SETTING
@@ -156,15 +157,51 @@ namespace tools
 			}
 		}
 
-		void precorp(int& cols,int& rows,int& channel)
+		int detect(cv::Mat img,
+			std::vector <seeta::FaceInfo> & face_info,
+			std::vector <tools::faceLandMark> & face_marks)
+		{
+			if (p_face_detector == 0 || p_point_detector == 0) return false;
+			try
+			{
+				seeta::ImageData img_data(img.cols, img.rows, img.channels());
+				img_data.data = img.data;
+				face_info = p_face_detector->Detect(img_data);
+				for (int i = 0; i < face_info.size(); i++)
+				{
+					tools::faceLandMark faceLandMark;
+					p_point_detector->PointDetectLandmarks(img_data, face_info.at(i), faceLandMark.mark);
+					face_marks.push_back(faceLandMark);
+				}
+				return face_info.size();
+			}
+			catch (std::exception e)
+			{
+				return -1;
+			}
+			catch (...)
+			{
+				return -1;
+			}
+		}
+
+		/**
+		@fn  presize
+		@brief get compute buffer size of.
+		*/
+		void presize(int& cols,int& rows,int& channel,int& feats)
 		{
 			rows = face_rows;
 			cols = face_cols;
 			channel = face_chn;
+			feats = feat_size;
 		}
 
-		// Crop face with 3-channels image and 5 located landmark points.
-		// 'corp_img' can be initialized as a cv::Mat sized by precorp.
+		/**
+		@fn  corp
+		@brief use buffer sized by presize.
+		@param[out]  corp_img: buffer presized.
+		*/
 		void corp(const seeta::ImageData& img,
 			tools::faceLandMark face_mark,
 			const seeta::ImageData& corp_img)
@@ -184,6 +221,74 @@ namespace tools
 			}
 		}
 
+		void corp(cv::Mat& img,
+			tools::faceLandMark face_mark,
+			cv::Mat& corp_img)
+		{
+			if (feat_size == 0) return;
+			try
+			{
+				seeta::ImageData img_data(img.cols, img.rows, img.channels());
+				img_data.data = img.data;
+				cv::Mat& corp_img = cv::Mat(face_rows,face_cols,CV_8UC(face_chn));
+				seeta::ImageData corp_img_data(corp_img.cols, corp_img.rows, corp_img.channels());
+				corp_img_data.data = corp_img.data;
+				face_recognizer.CropFace(img_data, face_mark.mark, corp_img_data);
+			}
+			catch (std::exception e)
+			{
+				return;
+			}
+			catch (...)
+			{
+				return;
+			}
+		}
+
+		/**
+		@fn  getfeature
+		@brief use buffer sized by presize.
+		@param[out]  fea buffer: presized.
+		*/
+		void getfeature(const seeta::ImageData& corp_img,float* fea) {
+			try
+			{
+				face_recognizer.ExtractFeature(corp_img, fea);
+			}
+			catch (std::exception e){}
+			catch (...){}
+		}
+
+		void getfeature(cv::Mat corp_img, float* fea) {
+			try
+			{
+				seeta::ImageData img_data(corp_img.cols, corp_img.rows, corp_img.channels());
+				img_data.data = corp_img.data;
+				face_recognizer.ExtractFeature(img_data, fea);
+			}
+			catch (std::exception e) {}
+			catch (...) {}
+		}
+
+		float compare(float* fea1, float* fea2)
+		{
+			if (feat_size == 0) return false;
+			try
+			{
+				// Caculate similarity of two faces
+				float sim = face_recognizer.CalcSimilarity(fea1, fea2);
+				return sim;
+			}
+			catch (std::exception e)
+			{
+				return -1;
+			}
+			catch (...)
+			{
+				return -1;
+			}
+		}
+
 		float compare(const seeta::ImageData img1,
 			const seeta::ImageData img2)
 		{
@@ -195,6 +300,38 @@ namespace tools
 
 				float *fea2 = new float[feat_size];
 				face_recognizer.ExtractFeature(img2, fea2);
+
+				// Caculate similarity of two faces
+				float sim = face_recognizer.CalcSimilarity(fea1, fea2);
+				delete[] fea1;
+				delete[] fea2;
+				return sim;
+			}
+			catch (std::exception e)
+			{
+				return -1;
+			}
+			catch (...)
+			{
+				return -1;
+			}
+		}
+
+		float compare(const cv::Mat img1,
+			const cv::Mat img2)
+		{
+			if (feat_size == 0) return false;
+			try
+			{
+				float *fea1 = new float[feat_size];
+				seeta::ImageData img_data1(img1.cols, img1.rows, img1.channels());
+				img_data1.data = img1.data;
+				face_recognizer.ExtractFeature(img_data1, fea1);
+
+				float *fea2 = new float[feat_size];
+				seeta::ImageData img_data2(img2.cols, img2.rows, img2.channels());
+				img_data2.data = img2.data;
+				face_recognizer.ExtractFeature(img_data2, fea2);
 
 				// Caculate similarity of two faces
 				float sim = face_recognizer.CalcSimilarity(fea1, fea2);
