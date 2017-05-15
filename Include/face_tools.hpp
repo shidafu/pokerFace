@@ -23,14 +23,22 @@ namespace tools
 		int img_height;
 		int target_size;
 	};
-	sizeSetting accept_size_3X2 = { 160,240,40 };
-	sizeSetting accept_size_2X3 = { 240,160,40 };
-	sizeSetting accept_size_4X3 = { 240,320,60 };
-	sizeSetting accept_size_3X4 = { 320,240,60 };
-	sizeSetting accept_size_15X9 = { 240,400,60 };
-	sizeSetting accept_size_9X15 = { 400,240,60 };
-	sizeSetting accept_size_16X9 = { 360,540,80 };
-	sizeSetting accept_size_9X16 = { 540,360,80 };
+	sizeSetting accept_size_3X2 = { 80,120,20 };
+	sizeSetting accept_size_2X3 = { 120,80,20 };
+	sizeSetting accept_size_4X3 = { 90,120,25 };
+	sizeSetting accept_size_3X4 = { 120,90,25 };
+	sizeSetting accept_size_15X9 = { 120,200,30 };
+	sizeSetting accept_size_9X15 = { 200,120,30 };
+	sizeSetting accept_size_16X9 = { 180,270,40 };
+	sizeSetting accept_size_9X16 = { 270,180,40 };
+	//sizeSetting accept_size_3X2 = { 80,120,20 };
+	//sizeSetting accept_size_2X3 = { 120,80,20 };
+	//sizeSetting accept_size_4X3 = { 120,160,30 };
+	//sizeSetting accept_size_3X4 = { 160,120,30 };
+	//sizeSetting accept_size_15X9 = { 120,200,30 };
+	//sizeSetting accept_size_9X15 = { 200,120,30 };
+	//sizeSetting accept_size_16X9 = { 180,270,40 };
+	//sizeSetting accept_size_9X16 = { 270,180,40 };
 #endif
 
 	struct faceLandMark
@@ -55,7 +63,12 @@ namespace tools
 	public:
 		seeta::FaceDetection*  p_face_detector;
 		seeta::FaceAlignment* p_point_detector;
+		seeta::FaceIdentification face_recognizer;
+		int feat_size;
 		sizeSetting accept_size;
+		int face_rows;
+		int face_cols;
+		int face_chn;
 
 		faceDetector()
 		{
@@ -64,6 +77,10 @@ namespace tools
 			accept_size.img_width = accept_size_3X2.img_width;
 			accept_size.img_height = accept_size_3X2.img_height;
 			accept_size.target_size = accept_size_3X2.target_size;
+			feat_size = 0;
+			face_rows = 0;
+			face_cols = 0;
+			face_chn = 0;
 		}
 		~faceDetector()
 		{
@@ -71,11 +88,16 @@ namespace tools
 			p_face_detector = 0;
 			delete p_point_detector;
 			p_point_detector = 0;
+			feat_size = 0;
+			face_rows = 0;
+			face_cols = 0;
+			face_chn = 0;
 		}
 
 		bool initial(sizeSetting ac_size, 
 			const char* fd, 
-			const char* fa)
+			const char* fa,
+			const char*fi)
 		{
 			try
 			{
@@ -90,6 +112,12 @@ namespace tools
 				p_face_detector->SetWindowStep(4, 4);
 
 				p_point_detector  = new seeta::FaceAlignment(fa);
+
+				face_recognizer.LoadModel(fi);
+				feat_size = face_recognizer.feature_size();
+				face_rows = face_recognizer.crop_height();
+				face_cols = face_recognizer.crop_width();
+				face_chn = face_recognizer.crop_channels();
 				return true;
 			}
 			catch (std::exception e)
@@ -102,7 +130,7 @@ namespace tools
 			}
 		}
 
-		int detect(seeta::ImageData img,
+		int detect(const seeta::ImageData img,
 			std::vector <seeta::FaceInfo> & face_info,
 			std::vector <tools::faceLandMark> & face_marks)
 		{
@@ -127,51 +155,65 @@ namespace tools
 				return -1;
 			}
 		}
-	};
 
-	/**
-	@class faceCompare :
-	@brief faceCompare use fix image size, just accept presupposed image size.
-	*/
-	class faceCompare
-	{
-	public:
-		seeta::FaceIdentification face_recognizer;
-		int feat_size;
-		sizeSetting accept_size;
-
-		faceCompare()
+		void precorp(int& cols,int& rows,int& channel)
 		{
-			feat_size = 0;
-			accept_size.img_width = accept_size_3X2.img_width;
-			accept_size.img_height = accept_size_3X2.img_height;
-			accept_size.target_size = accept_size_3X2.target_size;
-		}
-		~faceCompare()
-		{
-			feat_size = 0;
+			rows = face_rows;
+			cols = face_cols;
+			channel = face_chn;
 		}
 
-		bool initial(sizeSetting ac_size, const char*fi)
+		// Crop face with 3-channels image and 5 located landmark points.
+		// 'corp_img' can be initialized as a cv::Mat sized by precorp.
+		void corp(const seeta::ImageData& img,
+			tools::faceLandMark face_mark,
+			const seeta::ImageData& corp_img)
 		{
+			if (feat_size == 0) return;
 			try
 			{
-				accept_size.img_width = ac_size.img_width;
-				accept_size.img_height = ac_size.img_height;
-				accept_size.target_size = ac_size.target_size;
-
-				face_recognizer.LoadModel(fi);
-				feat_size = face_recognizer.feature_size();
-				return true;
+				face_recognizer.CropFace(img, face_mark.mark, corp_img);
+			}
+			catch (std::exception e)
+			{
+				return;
 			}
 			catch (...)
 			{
-				return false;
+				return;
 			}
 		}
 
-		float compare(seeta::ImageData img1,
-			seeta::ImageData img2,
+		float compare(const seeta::ImageData img1,
+			const seeta::ImageData img2)
+		{
+			if (feat_size == 0) return false;
+			try
+			{
+				float *fea1 = new float[feat_size];
+				face_recognizer.ExtractFeature(img1, fea1);
+
+				float *fea2 = new float[feat_size];
+				face_recognizer.ExtractFeature(img2, fea2);
+
+				// Caculate similarity of two faces
+				float sim = face_recognizer.CalcSimilarity(fea1, fea2);
+				delete[] fea1;
+				delete[] fea2;
+				return sim;
+			}
+			catch (std::exception e)
+			{
+				return -1;
+			}
+			catch (...)
+			{
+				return -1;
+			}
+		}
+
+		float corp_compare(const seeta::ImageData img1,
+			const seeta::ImageData img2,
 			seeta::FacialLandmark face1_marks[5],
 			seeta::FacialLandmark face2_marks[5])
 		{
@@ -179,12 +221,28 @@ namespace tools
 			try
 			{
 				float *fea1 = new float[feat_size];
+				long t0 = cv::getTickCount();
 				face_recognizer.ExtractFeatureWithCrop(img1, face1_marks, fea1);
+				long t1 = cv::getTickCount();
+				double secs = (t1 - t0) / cv::getTickFrequency();
+				std::string debugStr = tools::f_to_s(secs);
+				OutputDebugStringA(("ExtractFeatureWithCrop take time = " + debugStr + "\n").c_str());
+
 				float *fea2 = new float[feat_size];
+				t0 = cv::getTickCount();
 				face_recognizer.ExtractFeatureWithCrop(img2, face2_marks, fea2);
+				t1 = cv::getTickCount();
+				secs = (t1 - t0) / cv::getTickFrequency();
+				debugStr = tools::f_to_s(secs);
+				OutputDebugStringA(("ExtractFeatureWithCrop take time = " + debugStr + "\n").c_str());
 
 				// Caculate similarity of two faces
+				t0 = cv::getTickCount();
 				float sim = face_recognizer.CalcSimilarity(fea1, fea2);
+				t1 = cv::getTickCount();
+				secs = (t1 - t0) / cv::getTickFrequency();
+				debugStr = tools::f_to_s(secs);
+				OutputDebugStringA(("CalcSimilarity take time = " + debugStr + "\n").c_str());
 				delete[] fea1;
 				delete[] fea2;
 				return sim;
