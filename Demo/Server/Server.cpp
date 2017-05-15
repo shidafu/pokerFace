@@ -93,7 +93,7 @@ std::vector<websocketpp::connection_hdl> clientHDLvec;
 
 
 tools::faceDetector face_detector;
-tools::faceCompare face_compare;
+//tools::faceCompare face_compare;
 
 void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 	std::string mmsg = msg->get_payload();
@@ -174,7 +174,7 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 				if (face_marks1.size() > 0 && face_marks2.size() > 0)
 				{
 					t0 = cv::getTickCount();
-					r = face_compare.compare(img_data1, img_data2, face_marks1.at(0).mark, face_marks2.at(0).mark);
+					r = face_detector.corp_compare(img_data1, img_data2, face_marks1.at(0).mark, face_marks2.at(0).mark);
 					t1 = cv::getTickCount();
 					secs = (t1 - t0) / cv::getTickFrequency();
 					std::cout << "Compare: similar=" << r << " ,take " << secs << " seconds." << std::endl;
@@ -326,10 +326,10 @@ int main(int argc, char* argv[])
 	tools::faceDetector face_detector;
 	face_detector.initial(tools::accept_size_3X2,
 		(exe_path_str + "seeta_fd_frontal_v1.0.bin").c_str(),
-		(exe_path_str + "seeta_fa_v1.1.bin").c_str());
-	tools::faceCompare face_compare;
-	face_compare.initial(tools::accept_size_3X2,
+		(exe_path_str + "seeta_fa_v1.1.bin").c_str(),
 		(exe_path_str + "seeta_fr_v1.0.bin").c_str());
+	//tools::faceCompare face_compare;
+	//face_compare.initial(tools::accept_size_3X2);
 
 	int connetTryCuont = 0;
 	while (true)
