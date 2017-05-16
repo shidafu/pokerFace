@@ -1,68 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="js/jquery-3.1.1.min.js"></script>
+<html ng-app="ionicApp">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+        <title>选择图片</title>
+        <link href="https://cdn.bootcss.com/ionic/1.3.2/css/ionic.css" rel="stylesheet">
+        <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://cdn.bootcss.com/ionic/1.3.2/js/ionic.bundle.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $("#input1").change(function (e) {
+                    console.info(e.target.files[0]);//图片文件
+                    var dom = $("input[id^='input1']")[0];
+                    console.info(dom.value);//这个是文件的路径 C:\fakepath\icon (5).png
+                    console.log(e.target.value);//这个也是文件的路径和上面的dom.value是一样的
+                    var reader = new FileReader();
+                    reader.onload = (function (file) {
+                        return function (e) {
+                            console.info(this.result); //这个就是base64的数据了
+                            var sss = $("#img1");
+                            $("#img1")[0].src = this.result;
+                        };
+                    })(e.target.files[0]);
+                    reader.readAsDataURL(e.target.files[0]);
+                });
+                $("#button1").click(function () {
+                    console.info("#button1");//图片文件
+                    $("#input1").click();
+                });
+
+                $("#input2").change(function (e) {
+                    console.info(e.target.files[0]);//图片文件
+                    var dom = $("input[id^='input2']")[0];
+                    console.info(dom.value);//这个是文件的路径 C:\fakepath\icon (5).png
+                    console.log(e.target.value);//这个也是文件的路径和上面的dom.value是一样的
+                    var reader = new FileReader();
+                    reader.onload = (function (file) {
+                        return function (e) {
+                            console.info(this.result); //这个就是base64的数据了
+                            var sss = $("#img2");
+                            $("#img2")[0].src = this.result;
+                        };
+                    })(e.target.files[0]);
+                    reader.readAsDataURL(e.target.files[0]);
+                });
+                $("#button2").click(function () {
+                    console.info("#button2");//图片文件
+                    $("#input2").click();
+                });
+            });
+        </script>
+    </head>
+    <body>
+   <div class="content has-header">
+      <div class="list card">
+        <div class="item item-body">
+          <img id= "img1" class="full-image" style="height:40%; width:100%" src="src/a.jpg">
+          <button id="button1" class="button button-full button-positive">选择第一张图片</button>
+           <input id="input1" type="file" accept=".gif,.jpg,.jpeg,.png" style="visibility: hidden">
+        </div>
+        <div class="item item-body">
+          <img id="img2" class="full-image" style="height:40%; width:100%" src="src/b.jpg">
+          <button id="button2" class="button button-full button-positive">选择第二张图片</button>
+            <input id="input2" type="file" accept=".gif,.jpg,.jpeg,.png" style="visibility: hidden">
+        </div>
+      </div>
+    </div>
     <script>
+      
 
-        var wsUri ="ws://echo.websocket.org/";
-        var body = document.getElementsByTagName("body");
-        var websocket;
-
-        function init() {
-            websocket = new WebSocket(wsUri);
-            websocket.onopen = function(evt) {
-                onOpen(evt)
-            };
-            websocket.onclose = function(evt) {
-                onClose(evt)
-            };
-            websocket.onmessage = function(evt) {
-                onMessage(evt)
-            };
-            websocket.onerror = function(evt) {
-                onError(evt)
-            };
-        }
-
-        function onOpen(evt) {
-//            writeToScreen("CONNECTED");
-            doSend("WebSocket rocks");
-        }
-
-        function onClose(evt) {
-//            writeToScreen("DISCONNECTED");
-        }
-
-        function onMessage(evt) {
-            alert(evt.data);
-//            writeToScreen('<span style="color: blue;">RESPONSE: '+ evt.data+'</span>');
-//            websocket.close();
-        }
-
-        function onError(evt) {
-//            writeToScreen('<span style="color: red;">ERROR:</span> '+ evt.data);
-        }
-
-        function doSend(message) {
-//            writeToScreen("SENT: " + message);
-            websocket.send(message);
-        }
-
-//        function writeToScreen(message) {
-//            var pre = document.createElement("p");
-//            pre.style.wordWrap = "break-word";
-//            pre.innerHTML = message;
-//            alert(message);
-////            body.appendChild(pre);
-//        }
-
-        window.addEventListener("load", init, false);
 
     </script>
-</head>
-<body>
-    <button onclick="doSend('test')">Test</button>
-</body>
+  </body>
 </html>

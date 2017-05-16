@@ -21,9 +21,9 @@ namespace tools
 		int target_size;
 	};
 	sizeSetting accept_size_3X2 = { 80,120,20 };
-	sizeSetting accept_size_2X3 = { 120,80,20 };
-	sizeSetting accept_size_4X3 = { 90,120,25 };
-	sizeSetting accept_size_3X4 = { 120,90,25 };
+	sizeSetting accept_size_2X3 = { 120,80,20 };	
+	sizeSetting accept_size_4X3 = { 120,160,30 };
+	sizeSetting accept_size_3X4 = { 160,120,30 };
 	sizeSetting accept_size_15X9 = { 120,200,30 };
 	sizeSetting accept_size_9X15 = { 200,120,30 };
 	sizeSetting accept_size_16X9 = { 180,270,40 };
