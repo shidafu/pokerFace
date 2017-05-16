@@ -29,6 +29,7 @@
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -85,7 +86,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>FaceDetection.lib;FaceAlignment.lib;Identification.lib;opencv_world320.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);4758cca.lib;aep.lib;atalla.lib;capi.lib;chil.lib;cswift.lib;gmp.lib;gost.lib;libeay32.lib;nuron.lib;padlock.lib;ssleay32.lib;sureware.lib;ubsec.lib;libuv.lib;lib_json.lib</AdditionalDependencies>
+      <AdditionalDependencies>FaceDetection.lib;FaceAlignment.lib;Identification.lib;opencv_world320.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;4758cca.lib;aep.lib;atalla.lib;capi.lib;chil.lib;cswift.lib;gmp.lib;gost.lib;libeay32.lib;nuron.lib;padlock.lib;ssleay32.lib;sureware.lib;ubsec.lib;lib_json.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -94,36 +95,10 @@
   <ItemGroup>
     <ClInclude Include="..\..\Include\face_tools.hpp" />
     <ClInclude Include="..\..\Include\image_tools.hpp" />
-    <ClInclude Include="..\..\Third\zlib\crc32.h" />
-    <ClInclude Include="..\..\Third\zlib\deflate.h" />
-    <ClInclude Include="..\..\Third\zlib\gzguts.h" />
-    <ClInclude Include="..\..\Third\zlib\inffast.h" />
-    <ClInclude Include="..\..\Third\zlib\inffixed.h" />
-    <ClInclude Include="..\..\Third\zlib\inflate.h" />
-    <ClInclude Include="..\..\Third\zlib\inftrees.h" />
-    <ClInclude Include="..\..\Third\zlib\trees.h" />
-    <ClInclude Include="..\..\Third\zlib\zconf.h" />
-    <ClInclude Include="..\..\Third\zlib\zlib.h" />
-    <ClInclude Include="..\..\Third\zlib\zutil.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Third\zlib\adler32.c" />
-    <ClCompile Include="..\..\Third\zlib\compress.c" />
-    <ClCompile Include="..\..\Third\zlib\crc32.c" />
-    <ClCompile Include="..\..\Third\zlib\deflate.c" />
-    <ClCompile Include="..\..\Third\zlib\gzclose.c" />
-    <ClCompile Include="..\..\Third\zlib\gzlib.c" />
-    <ClCompile Include="..\..\Third\zlib\gzread.c" />
-    <ClCompile Include="..\..\Third\zlib\gzwrite.c" />
-    <ClCompile Include="..\..\Third\zlib\infback.c" />
-    <ClCompile Include="..\..\Third\zlib\inffast.c" />
-    <ClCompile Include="..\..\Third\zlib\inflate.c" />
-    <ClCompile Include="..\..\Third\zlib\inftrees.c" />
-    <ClCompile Include="..\..\Third\zlib\trees.c" />
-    <ClCompile Include="..\..\Third\zlib\uncompr.c" />
-    <ClCompile Include="..\..\Third\zlib\zutil.c" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

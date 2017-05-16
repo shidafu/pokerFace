@@ -9,8 +9,8 @@ Page({
         identityImageBase64:"",
         selfieBase64:"",
         response:{},
-        phpUrl:"http://172.23.71.2/identity/imageToBase64.php",
-        wssUrl:'wss://172.23.71.3:9002',
+        phpUrl:"https://pockerface.zhaopiano.cn/identity/imageToBase64.php",
+        wssUrl:'wss://pockerface.zhaopiano.cn:9002',
         gap:0.50
     },
     addIdentifyImage:function () {
@@ -66,10 +66,17 @@ Page({
                     },
                     success: function(res){
                         var data = res.data
-                        //console.log(" received base64:",data);
+                        console.log(" received base64:",data);
                         that.setData({
                             selfieBase64:data
                         })
+                    },
+                    fail:function (e) {
+                        console.log(e);
+                        console.log("error uploading");
+                    },
+                    complete:function () {
+                        console.log("uploading finished")
                     }
                 })
 
@@ -111,6 +118,18 @@ Page({
         })
         wx.onSocketError(function(res){
             console.log('WebSocket连接打开失败，请检查！')
+            console.log(res)
+            var modelContent = res.errMsg;
+            wx.showModal({
+              content: modelContent,
+              showCancel: false,
+              success: function (res) {
+                if (res.confirm) {
+                  console.log('用户点击确定')
+                }
+              }
+            });
+            
         })
         wx.onSocketMessage(function(res) {
             console.log('收到服务器内容：' + res.data);
