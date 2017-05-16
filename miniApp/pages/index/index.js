@@ -9,8 +9,8 @@ Page({
         identityImageBase64:"",
         selfieBase64:"",
         response:{},
-        phpUrl:"http://172.23.71.2/identity/imageToBase64.php",
-        wssUrl:'wss://172.23.71.3:9002',
+        phpUrl:"https://pockerface.zhaopiano.cn/identity/imageToBase64.php",
+        wssUrl:'wss://pockerface.zhaopiano.cn:9002',
         gap:0.50
     },
     addIdentifyImage:function () {
@@ -35,7 +35,7 @@ Page({
                     },
                     success: function(res){
                         var data = res.data
-                        //console.log(" received base64:",data);
+                        console.log(" received base64:",data);
                         that.setData({
                             identityImageBase64:data
                         })
@@ -66,10 +66,17 @@ Page({
                     },
                     success: function(res){
                         var data = res.data
-                        //console.log(" received base64:",data);
+                        console.log(" received base64:",data);
                         that.setData({
                             selfieBase64:data
                         })
+                    },
+                    fail:function (e) {
+                        console.log(e);
+                        console.log("error uploading");
+                    },
+                    complete:function () {
+                        console.log("uploading finished")
                     }
                 })
 
