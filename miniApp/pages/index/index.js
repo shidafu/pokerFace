@@ -35,7 +35,7 @@ Page({
                     },
                     success: function(res){
                         var data = res.data
-                        console.log(" received base64:",data);
+                        //console.log(" received base64:",data);
                         that.setData({
                             identityImageBase64:data
                         })
@@ -118,6 +118,18 @@ Page({
         })
         wx.onSocketError(function(res){
             console.log('WebSocket连接打开失败，请检查！')
+            console.log(res)
+            var modelContent = res.errMsg;
+            wx.showModal({
+              content: modelContent,
+              showCancel: false,
+              success: function (res) {
+                if (res.confirm) {
+                  console.log('用户点击确定')
+                }
+              }
+            });
+            
         })
         wx.onSocketMessage(function(res) {
             console.log('收到服务器内容：' + res.data);
