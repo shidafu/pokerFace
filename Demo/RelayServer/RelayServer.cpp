@@ -48,6 +48,7 @@ server_plain *pServer_plain;
 
 template <typename EndpointType>
 void on_message(EndpointType* s, websocketpp::connection_hdl hdl, message_ptr msg) {
+	std::cout << "get into on_message" << std::endl;
 	std::string mmsg = msg->get_payload();
 	Json::Value root;
 	std::stringstream ssm;
@@ -83,7 +84,7 @@ void on_message(EndpointType* s, websocketpp::connection_hdl hdl, message_ptr ms
 		ssm.str("");
 		ssm << root;
 		buffstr = ssm.str();
-		std::cout << "数据内容：" << buffstr << std::endl;
+		//std::cout << "数据内容：" << buffstr << std::endl;
 		try {
 			pServer_plain->send(computServerHDL, buffstr/*msg->get_payload()*/, websocketpp::frame::opcode::text/*msg->get_opcode()*/);
 		}
@@ -189,12 +190,21 @@ void on_message(EndpointType* s, websocketpp::connection_hdl hdl, message_ptr ms
 template <typename EndpointType>
 void on_http(EndpointType* s, websocketpp::connection_hdl hdl) {
 	EndpointType::connection_ptr con = s->get_con_from_hdl(hdl);
-	con->set_body("Hello World!");
+	
+	if (s->is_secure())
+	{
+		con->set_body("Hello World!\nThe connection is secure!");
+	}
+	else
+	{
+		con->set_body("Hello World!");
+	}
+	
 	con->set_status(websocketpp::http::status_code::ok);
 }
 
 std::string get_password() {
-	return "test";
+	return "214099680310031";//"test"
 }
 
 // See https://wiki.mozilla.org/Security/Server_Side_TLS for more details about
@@ -215,35 +225,51 @@ context_ptr on_tls_init(tls_mode mode, websocketpp::connection_hdl hdl) {
 	try {
 		if (mode == MOZILLA_MODERN) {
 			// Modern disables TLSv1
-			ctx->set_options(asio::ssl::context::default_workarounds |
+			ctx->set_options( asio::ssl::context::default_workarounds |
 				asio::ssl::context::no_sslv2 |
 				asio::ssl::context::no_sslv3 |
-				asio::ssl::context::no_tlsv1 |
-				asio::ssl::context::single_dh_use);
+				asio::ssl::context::no_tlsv1 
+				//asio::ssl::context::tlsv1 |
+				//asio::ssl::context::tlsv11 |
+				//asio::ssl::context::tlsv12 /*|
+				//asio::ssl::context::single_dh_use*/
+				);
 		}
 		else {
 			ctx->set_options(asio::ssl::context::default_workarounds |
 				asio::ssl::context::no_sslv2 |
 				asio::ssl::context::no_sslv3 |
-				asio::ssl::context::single_dh_use);
+				asio::ssl::context::no_tlsv1 
+				//asio::ssl::context::tlsv1 |
+				//asio::ssl::context::tlsv11 |
+				//asio::ssl::context::tlsv12 /*|
+				//asio::ssl::context::single_dh_use*/
+				);
 		}
-		ctx->set_password_callback(bind(&get_password));
-		ctx->use_certificate_chain_file("server.pem");
-		ctx->use_private_key_file("server.pem", asio::ssl::context::pem);
-
+		//ctx->set_password_callback(bind(&get_password));
+		//ctx->use_certificate_chain_file("server.pem");
+		//ctx->use_private_key_file("server.pem", asio::ssl::context::pem);
+		//ctx->us
+		//ctx->set_default_verify_paths();
+		ctx->use_certificate_file("key/public.pem", asio::ssl::context::pem);
+		ctx->use_private_key_file("key/214099680310031.key", asio::ssl::context::pem);
+		//ctx->use_certificate_chain_file("key/chain.pem");
+		//ctx->use_certificate_file("key/214099680310031.pem", asio::ssl::context::pem);
+		
 		// Example method of generating this file:
 		// `openssl dhparam -out dh.pem 2048:
 		// Mozilla Intermediate suggests 1024 as the minimum size to use:
 		// Mozilla Modern suggests 2048 as the minimum size to use:
-		ctx->use_tmp_dh_file("dh.pem");
-
+		//ctx->use_tmp_dh_file("dh.pem");
+		//ctx->set_options();
 		std::string ciphers;
 
 		if (mode == MOZILLA_MODERN) {
-			ciphers = "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK";
+			ciphers = "ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4";
+
 		}
 		else {
-			ciphers = "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA";
+			ciphers = "ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4";
 		}
 
 		if (SSL_CTX_set_cipher_list(ctx->native_handle(), ciphers.c_str()) != 1) {
@@ -259,15 +285,15 @@ template <typename EndpointType>
 void onDisconnect(EndpointType* s, websocketpp::connection_hdl hdl)
 {
 	std::cout << "disConnnect:" << hdl.lock().get() << std::endl;
+
 }
 int main()
 {
 	boost::asio::io_service ios;
 	server_tls endPoint_tls;
-
 	// Initialize ASIO
 	endPoint_tls.init_asio(&ios);
-
+	//endPoint_tls.is_secure();
 	// Register our message handler
 	endPoint_tls.set_message_handler(
 		bind(&on_message<server_tls>, &endPoint_tls, ::_1, ::_2));
@@ -281,6 +307,9 @@ int main()
 	endPoint_tls.listen(9002);
 	endPoint_tls.start_accept();
 	pServer_tls = &endPoint_tls;
+	//pServer_tls->
+
+
 
 	server_plain endPoint_plain;
 	endPoint_plain.init_asio(&ios);

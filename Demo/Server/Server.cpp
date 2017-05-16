@@ -56,6 +56,12 @@ cv::Mat base64toMat(std::string base64str)
 {
 	std::string mstr1;
 	cv::Mat m;
+	size_t Offt = base64str.find("/9j/");
+	if (Offt < 0)
+	{
+		std::cout << "Not a Base64Image!" << std::endl;
+		return m;
+	}
 	try
 	{
 		//RelicHelper::Base64Decode(mmsg2, &mstr1);
@@ -97,16 +103,18 @@ tools::faceCompare face_compare;
 
 void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 	std::string mmsg = msg->get_payload();
-	Json::Value root;
+	Json::Value root;//接收到的
 	std::stringstream ssm;
 	std::string requestTypeStr;
+	Json::Value Jsvalue; //用于发送的
+	Jsvalue["requestType"] = "replyFace";
 	try
 	{
 		ssm.str("");
 		ssm << mmsg;
 		ssm >> root;
 		std::cout << "get a json data!" << std::endl;
-		std::cout << root << std::endl;
+		//std::cout << root << std::endl;
 		requestTypeStr = root.get("requestType", "").asString();
 	}
 	catch (...)
@@ -115,7 +123,6 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 		return;
 	}
 	
-
 
 	if (requestTypeStr == "invalid") return;
 	std::string tmpstr;
@@ -129,70 +136,81 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 			std::string pic2str = root.get("pic2Data", "").asString();
 			cv::Mat img1 = base64toMat(pic1str);
 			cv::Mat img2 = base64toMat(pic2str);
-			Json::Value Jsvalue;
-			Jsvalue["requestType"] = "replyFace";
-			try
-			{
-				float r=0.01;
-				//算法部分
-
-
-				std::cout << "进行算法运算" << std::endl;
-
-				//Load images
-				seeta::ImageData img_data1(img1.cols, img1.rows, img1.channels());
-				img_data1.data = img1.data;
-				cv::Mat gray_img1;
-				cv::cvtColor(img1, gray_img1, CV_RGB2GRAY);
-				seeta::ImageData gray_img_data1(gray_img1.cols, gray_img1.rows, gray_img1.channels());
-				gray_img_data1.data = gray_img1.data;
-
-				seeta::ImageData img_data2(img2.cols, img2.rows, img2.channels());
-				img_data2.data = img2.data;
-				cv::Mat gray_img2;
-				cv::cvtColor(img2, gray_img2, CV_RGB2GRAY);
-				seeta::ImageData gray_img_data2(gray_img2.cols, gray_img2.rows, gray_img2.channels());
-				gray_img_data2.data = gray_img2.data;
-
-				// Detect face.
-				std::vector <seeta::FaceInfo> face_info1;
-				std::vector <tools::faceLandMark> face_marks1;
-				long t0 = cv::getTickCount();
-				bool isOK = face_detector.detect(gray_img_data1, face_info1, face_marks1);
-				long t1 = cv::getTickCount();
-				double secs = (t1 - t0) / cv::getTickFrequency();
-				std::cout << "Detect: " << face_info1.size() << " face,take " << secs << " seconds." << std::endl;
-
-				std::vector <seeta::FaceInfo> face_info2;
-				std::vector <tools::faceLandMark> face_marks2;
-				t0 = cv::getTickCount();
-				isOK = face_detector.detect(gray_img_data2, face_info2, face_marks2);
-				t1 = cv::getTickCount();
-				secs = (t1 - t0) / cv::getTickFrequency();
-				std::cout << "Detect: " << face_info2.size() << " face,take " << secs << " seconds." << std::endl;
-
-				if (face_marks1.size() > 0 && face_marks2.size() > 0)
-				{
-					t0 = cv::getTickCount();
-					r = face_compare.compare(img_data1, img_data2, face_marks1.at(0).mark, face_marks2.at(0).mark);
-					t1 = cv::getTickCount();
-					secs = (t1 - t0) / cv::getTickFrequency();
-					std::cout << "Compare: similar=" << r << " ,take " << secs << " seconds." << std::endl;
-				}
-
-
-				//算法部分结束
-				Jsvalue["resultState"] = "ok";
-				Jsvalue["resultValue"] = r;
-			}
-			catch (...)
+			if (img1.empty()|img2.empty())
 			{
 				Jsvalue["resultState"] = "error";
 			}
-			Jsvalue["sourceHDL"] = root.get("sourceHDL", "").asString();
+			else
+			{
+				try
+				{
+					float r = 0.01;
+					//算法部分
 
-			//algorithm
+
+					std::cout << "进行算法运算" << std::endl;
+
+					//Load images
+					seeta::ImageData img_data1(img1.cols, img1.rows, img1.channels());
+					img_data1.data = img1.data;
+					cv::Mat gray_img1;
+					cv::cvtColor(img1, gray_img1, CV_RGB2GRAY);
+					seeta::ImageData gray_img_data1(gray_img1.cols, gray_img1.rows, gray_img1.channels());
+					gray_img_data1.data = gray_img1.data;
+
+					seeta::ImageData img_data2(img2.cols, img2.rows, img2.channels());
+					img_data2.data = img2.data;
+					cv::Mat gray_img2;
+					cv::cvtColor(img2, gray_img2, CV_RGB2GRAY);
+					seeta::ImageData gray_img_data2(gray_img2.cols, gray_img2.rows, gray_img2.channels());
+					gray_img_data2.data = gray_img2.data;
+
+					// Detect face.
+					std::vector <seeta::FaceInfo> face_info1;
+					std::vector <tools::faceLandMark> face_marks1;
+					long t0 = cv::getTickCount();
+					bool isOK = face_detector.detect(gray_img_data1, face_info1, face_marks1);
+					long t1 = cv::getTickCount();
+					double secs = (t1 - t0) / cv::getTickFrequency();
+					std::cout << "Detect: " << face_info1.size() << " face,take " << secs << " seconds." << std::endl;
+
+					std::vector <seeta::FaceInfo> face_info2;
+					std::vector <tools::faceLandMark> face_marks2;
+					t0 = cv::getTickCount();
+					isOK = face_detector.detect(gray_img_data2, face_info2, face_marks2);
+					t1 = cv::getTickCount();
+					secs = (t1 - t0) / cv::getTickFrequency();
+					std::cout << "Detect: " << face_info2.size() << " face,take " << secs << " seconds." << std::endl;
+
+					if (face_marks1.size() > 0 && face_marks2.size() > 0)
+					{
+						t0 = cv::getTickCount();
+						r = face_compare.compare(img_data1, img_data2, face_marks1.at(0).mark, face_marks2.at(0).mark);
+						t1 = cv::getTickCount();
+						secs = (t1 - t0) / cv::getTickFrequency();
+						std::cout << "Compare: similar=" << r << " ,take " << secs << " seconds." << std::endl;
+					}
+
+
+					//算法部分结束
+					Jsvalue["resultState"] = "ok";
+					Jsvalue["resultValue"] = r;
+				}
+				catch (...)
+				{
+					Jsvalue["resultState"] = "error";
+				}
+				
+
+			}
+			//cv::imshow("img1", img1);
+			//cv::waitKey(1);
+			//cv::imshow("img2", img2);
+			//cv::waitKey(1);
+
 			
+			//algorithm
+			Jsvalue["sourceHDL"] = root.get("sourceHDL", "").asString();
 			std::stringstream ssm;
 			ssm << Jsvalue;
 			std::string buffstr =ssm.str();
@@ -323,11 +341,11 @@ int main(int argc, char* argv[])
 	char exe_path[512];
 	tools::full_to_path(argv[0], exe_path, 512);
 	std::string exe_path_str = exe_path;
-	tools::faceDetector face_detector;
+	//tools::faceDetector face_detector;
 	face_detector.initial(tools::accept_size_3X2,
 		(exe_path_str + "seeta_fd_frontal_v1.0.bin").c_str(),
 		(exe_path_str + "seeta_fa_v1.1.bin").c_str());
-	tools::faceCompare face_compare;
+	//tools::faceCompare face_compare;
 	face_compare.initial(tools::accept_size_3X2,
 		(exe_path_str + "seeta_fr_v1.0.bin").c_str());
 
