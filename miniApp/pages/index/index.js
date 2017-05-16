@@ -2,6 +2,7 @@
 //获取应用实例
 var app = getApp();
 var that;
+var socketOpen = false;
 Page({
     data: {
         identityImageSrc:"http://pic.baike.soso.com/p/20130821/20130821215447-1728773261.jpg",
@@ -11,21 +12,23 @@ Page({
         response:{},
         phpUrl:"https://pockerface.zhaopiano.cn/identity/imageToBase64.php",
         wssUrl:'wss://pockerface.zhaopiano.cn:9002',
-        gap:0.50
+        gap:0.50,
+        disableCompare:"disabled"
     },
     addIdentifyImage:function () {
         wx.chooseImage({
             count: 1, // 默认9
-            sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+            sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
             sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
             success: function (res) {
                 // 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
                 var tempFilePaths = res.tempFilePaths;
                 //console.log(tempFilePaths);
                 that.setData({
-                    identityImageSrc:tempFilePaths[0]
+                    identityImageSrc:tempFilePaths[0],
+                    identityImageBase64:""
                 });
-
+                readyToCompare();
                 wx.uploadFile({
                     url: that.data.phpUrl,
                     filePath: that.data.identityImageSrc,
@@ -35,10 +38,14 @@ Page({
                     },
                     success: function(res){
                         var data = res.data
+                        wx.showToast({
+                          title: 'base64加载成功！'
+                        });
                         //console.log(" received base64:",data);
                         that.setData({
                             identityImageBase64:data
-                        })
+                        });
+                        readyToCompare();
                     }
                 })
             }
@@ -53,10 +60,12 @@ Page({
                 // 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
                 var tempFilePaths = res.tempFilePaths;
                 //console.log(tempFilePaths);
-                that.setData({
-                    selfieSrc:tempFilePaths[0]
-                });
 
+                that.setData({
+                    selfieSrc:tempFilePaths[0],
+                    selfieBase64:""
+                });
+                readyToCompare();
                 wx.uploadFile({
                     url: that.data.phpUrl,
                     filePath: that.data.selfieSrc,
@@ -65,11 +74,15 @@ Page({
                         'user': 'test'
                     },
                     success: function(res){
-                        var data = res.data
-                        console.log(" received base64:",data);
+                        var data = res.data;
+                        wx.showToast({
+                            title: 'base64加载成功！'
+                        });
+                        //console.log(" received base64:",data);
                         that.setData({
                             selfieBase64:data
-                        })
+                        });
+                        readyToCompare();
                     },
                     fail:function (e) {
                         console.log(e);
@@ -84,53 +97,31 @@ Page({
         })
     },
     compare:function () {
+
+
         wx.showToast({
             title: '数据加载中',
             icon:'loading',
-            duration:30000
-        });
-        var socketOpen = false
-        // var socketMsgQueue = []
-        wx.connectSocket({
-            url: this.data.wssUrl
+            duration:60000,
+            mask:true
         });
 
-        wx.onSocketOpen(function(res) {
-            console.log('WebSocket连接已打开！')
-            socketOpen = true;
-            if (socketOpen) {
-                console.log("sending socket")
-
-                var tt = {
-                    requestType : 'askFace',
-                    recognitionType : "inTwo",
-                    //pic1Data : 'ccdd',
-                    pic1Data : that.data.identityImageBase64,
-                    //pic2Data : 'aabb'};
-                    pic2Data : that.data.selfieBase64};
-                //console.log(tt);
-                var last=JSON.stringify(tt);
-                wx.sendSocketMessage({
-                    data:last});
-
-            }
-
-        })
-        wx.onSocketError(function(res){
-            console.log('WebSocket连接打开失败，请检查！')
-            console.log(res)
-            var modelContent = res.errMsg;
+        if (socketOpen) {
+            console.log("sending socket")
+            var tt = {
+                requestType : 'askFace',
+                recognitionType : "inTwo",
+                pic1Data : that.data.identityImageBase64,
+                pic2Data : that.data.selfieBase64};
+            var last=JSON.stringify(tt);
+            wx.sendSocketMessage({
+                data:last});
+        }else{
             wx.showModal({
-              content: modelContent,
-              showCancel: false,
-              success: function (res) {
-                if (res.confirm) {
-                  console.log('用户点击确定')
-                }
-              }
-            });
-            
-        })
+              title: '服务器出错，请稍后再试'
+            })
+        }
+
         wx.onSocketMessage(function(res) {
             console.log('收到服务器内容：' + res.data);
             var re = JSON.parse(res.data);
@@ -160,35 +151,39 @@ Page({
             });
         })
     },
-    testResponse:function () {
-        wx.hideLoading();
-        var re = {
-            "requestType" : "replyFace",
-            "sourceHDL" : "0000asdff234",
-            "resultState" : "ok",
-            "resultValue" : "0.56"
-        };
-        var matchRate = re.resultValue*100
-        wx.showModal({
-            content: '匹配率：'+matchRate.toFixed(2)+'%',
-            showCancel: false,
-            success: function (res) {
-                if (res.confirm) {
-                    console.log('用户点击确定')
-                }
-            }
-        });
-    },
     onLoad: function () {
         console.log('onLoad');
         that = this;
-
     },
     onShow: function () {
-        var allTv = wx.getStorageSync('allTv') || [];
-        this.setData({
-            allTv: allTv
-        })
+        if(!socketOpen) {
+            wx.connectSocket({
+                url: this.data.wssUrl
+            });
+            wx.onSocketOpen(function (res) {
+                console.log('WebSocket连接已打开！')
+                socketOpen = true;
+            });
+            wx.onSocketError(function(res){
+                console.log('WebSocket连接打开失败，请检查！')
+                console.log(res)
+                var modelContent = res.errMsg;
+                wx.showModal({
+                    content: modelContent,
+                    showCancel: false,
+                    success: function (res) {
+                        if (res.confirm) {
+                            console.log('用户点击确定');
+                        }
+                    }
+                });
+            });
+        }
+    },
+    onHide:function () {
+        wx.closeSocket();
+        socketOpen = false;
+        console.log("WebSocket连接已关闭！")
     },
     onShareAppMessage: function () {
         return {
@@ -196,4 +191,15 @@ Page({
             path: '/pages/index/index'
         }
     }
-})
+});
+function readyToCompare() {
+    if (that.data.identityImageBase64.length > 0 && that.data.selfieBase64.length > 0){
+        that.setData({
+            disableCompare:""
+        })
+    }else {
+        that.setData({
+            disableCompare:"disabled"
+        })
+    }
+}

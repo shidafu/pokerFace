@@ -3,7 +3,7 @@
   <button bindtap="addIdentifyImage"  type="default" id="addIdentifyImage">添加身份证照片</button>
   <image id="selfie" mode="aspectFit" src="{{selfieSrc}}"></image>
   <button bindtap="addSelfie"  type="default" id="addSelfie">添加自拍照</button>
-  <button bindtap="compare" class="weui-btn" type="primary" id="compare">开始检测</button>
+  <button bindtap="compare" disabled="{{disableCompare}}" class="weui-btn" type="primary" id="compare">开始检测</button>
   <!--<button bindtap="testResponse" type="default" >test response</button>-->
 
   <view></view>
