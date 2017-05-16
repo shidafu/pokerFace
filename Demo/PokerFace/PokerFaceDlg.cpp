@@ -214,9 +214,7 @@ void CPokerFaceDlg::OnBnClickedCopBtn()
 	tools::faceDetector face_detector;
 	face_detector.initial(tools::accept_size_3X2,
 		(exe_path_str + "\\seeta_fd_frontal_v1.0.bin").c_str(),
-		(exe_path_str + "\\seeta_fa_v1.1.bin").c_str());
-	tools::faceCompare face_compare;
-	face_compare.initial(tools::accept_size_3X2,
+		(exe_path_str + "\\seeta_fa_v1.1.bin").c_str(),
 		(exe_path_str + "\\seeta_fr_v1.0.bin").c_str());
 
 	int imageNum = 0;
@@ -250,6 +248,8 @@ void CPokerFaceDlg::OnBnClickedCopBtn()
 		bool isOK = face_detector.detect(gray_img_data1, face_info1, face_marks1);
 		long t1 = cv::getTickCount();
 		double secs = (t1 - t0) / cv::getTickFrequency();
+		std::string debugStr = tools::f_to_s(secs);
+		OutputDebugStringA(("Detect take time = " + debugStr + "\n").c_str());
 
 		std::vector <seeta::FaceInfo> face_info2;
 		std::vector <tools::faceLandMark> face_marks2;
@@ -257,13 +257,45 @@ void CPokerFaceDlg::OnBnClickedCopBtn()
 		isOK = face_detector.detect(gray_img_data2, face_info2, face_marks2);
 		t1 = cv::getTickCount();
 		secs = (t1 - t0) / cv::getTickFrequency();
+		debugStr = tools::f_to_s(secs);
+		OutputDebugStringA(("Detect take time = " + debugStr + "\n").c_str());
+
 		float similar=0;
+		std::string similarStr;
 		if (face_marks1.size() > 0 && face_marks2.size() > 0)
 		{
+			//int face_rows = 0;
+			//int face_cols = 0;
+			//int face_chn = 0;
+			//face_detector.precorp(face_cols, face_rows, face_chn);
+
+			//cv::Mat corp_img1=cv::Mat(face_rows,face_cols,CV_8UC(face_chn));
+			//seeta::ImageData corp_img_data1(corp_img1.cols, corp_img1.rows, corp_img1.channels());
+			//corp_img_data1.data = corp_img1.data;
+			//t0 = cv::getTickCount();
+			//face_detector.corp(img_data1, face_marks1.at(0), corp_img_data1);
+			//t1 = cv::getTickCount();
+			//secs = (t1 - t0) / cv::getTickFrequency();
+			//debugStr = tools::f_to_s(secs);
+			//OutputDebugStringA(("Crop take time = " + debugStr + "\n").c_str());
+
+			//cv::Mat corp_img2 = cv::Mat(face_rows, face_cols, CV_8UC(face_chn));
+			//seeta::ImageData corp_img_data2(corp_img2.cols, corp_img2.rows, corp_img2.channels());
+			//corp_img_data2.data = corp_img2.data;
+			//t0 = cv::getTickCount();
+			//face_detector.corp(img_data2, face_marks2.at(0), corp_img_data2);
+			//t1 = cv::getTickCount();
+			//secs = (t1 - t0) / cv::getTickFrequency();
+			//debugStr = tools::f_to_s(secs);
+			//OutputDebugStringA(("Crop take time = " + debugStr + "\n").c_str());
+
 			t0 = cv::getTickCount();
-			similar = face_compare.compare(img_data1, img_data2, face_marks1.at(0).mark, face_marks2.at(0).mark);
+			similar = face_detector.corp_compare(img_data1, img_data2, face_marks1.at(0).mark, face_marks2.at(0).mark);
 			t1 = cv::getTickCount();
 			secs = (t1 - t0) / cv::getTickFrequency();
+			debugStr = tools::f_to_s(secs);
+			similarStr = tools::f_to_s(similar);
+			OutputDebugStringA(("Corp Compare take time = " + debugStr + ",similar=" + similarStr +"\n").c_str());
 			//MessageBoxA(0, ("Similaraty=" + similarStr).c_str(), "Similaraty", MB_OK);
 		}
 
@@ -275,11 +307,11 @@ void CPokerFaceDlg::OnBnClickedCopBtn()
 			face_rect.y = face_info1[i].bbox.y;
 			face_rect.width = face_info1[i].bbox.width;
 			face_rect.height = face_info1[i].bbox.height;
-			cv::rectangle(image1, face_rect, CV_RGB(0, 255, 255), 2, 8, 0);
+			cv::rectangle(image1, face_rect, CV_RGB(0, 255, 255), 1, 8, 0);
 			for (int k = 0; k < 5; k++)
 			{
 				cv::circle(image1, cv::Point(face_marks1.at(i).mark[k].x, face_marks1.at(i).mark[k].y), 4,
-					CV_RGB(0, 255, 255), 2);
+					CV_RGB(0, 255, 255), 1);
 			}
 		}
 		Update(0);
@@ -290,17 +322,17 @@ void CPokerFaceDlg::OnBnClickedCopBtn()
 			face_rect.y = face_info2[i].bbox.y;
 			face_rect.width = face_info2[i].bbox.width;
 			face_rect.height = face_info2[i].bbox.height;
-			cv::rectangle(image2, face_rect, CV_RGB(0, 255, 255), 2, 8, 0);
+			cv::rectangle(image2, face_rect, CV_RGB(0, 255, 255), 1, 8, 0);
 			for (int k = 0; k < 5; k++)
 			{
 				cv::circle(image2, cv::Point(face_marks2.at(i).mark[k].x, face_marks2.at(i).mark[k].y), 4,
-					CV_RGB(0, 255, 255), 2);
+					CV_RGB(0, 255, 255), 1);
 			}
 		}
 		Update(1);
 
-		std::string similarStr = tools::f_to_s(similar);
-		MessageBoxA(0, ("Similaraty=" + similarStr).c_str(), "Similaraty", MB_OK);
+		//std::string similarStr = tools::f_to_s(similar);
+		MessageBoxA(0, ("Similaraty=" + similarStr).c_str(), "Similaraty.", MB_OK);
 		//cv::waitKey(0);
 	}
 }

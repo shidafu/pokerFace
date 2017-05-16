@@ -8,9 +8,10 @@ Page({
         selfieSrc:"http://www.qulishi.com/UploadFile/2014-8/2014812150860.jpg",
         identityImageBase64:"",
         selfieBase64:"",
-        allTv: [],
-        phpUrl:"http://172.18.57.4/identity/imageToBase64.php",
-        wssUrl:'wss://172.18.57.2:9002'
+        response:{},
+        phpUrl:"https://pockerface.zhaopiano.cn/identity/imageToBase64.php",
+        wssUrl:'wss://pockerface.zhaopiano.cn:9002',
+        gap:0.50
     },
     addIdentifyImage:function () {
         wx.chooseImage({
@@ -34,7 +35,6 @@ Page({
                     },
                     success: function(res){
                         var data = res.data
-                        //do something
                         //console.log(" received base64:",data);
                         that.setData({
                             identityImageBase64:data
@@ -66,10 +66,17 @@ Page({
                     },
                     success: function(res){
                         var data = res.data
-                        //console.log(" received base64:",data);
+                        console.log(" received base64:",data);
                         that.setData({
                             selfieBase64:data
                         })
+                    },
+                    fail:function (e) {
+                        console.log(e);
+                        console.log("error uploading");
+                    },
+                    complete:function () {
+                        console.log("uploading finished")
                     }
                 })
 
@@ -77,11 +84,16 @@ Page({
         })
     },
     compare:function () {
+        wx.showToast({
+            title: '数据加载中',
+            icon:'loading',
+            duration:30000
+        });
         var socketOpen = false
         // var socketMsgQueue = []
         wx.connectSocket({
             url: this.data.wssUrl
-        })
+        });
 
         wx.onSocketOpen(function(res) {
             console.log('WebSocket连接已打开！')
@@ -92,19 +104,80 @@ Page({
                 var tt = {
                     requestType : 'askFace',
                     recognitionType : "inTwo",
+                    //pic1Data : 'ccdd',
                     pic1Data : that.data.identityImageBase64,
+                    //pic2Data : 'aabb'};
                     pic2Data : that.data.selfieBase64};
                 //console.log(tt);
                 var last=JSON.stringify(tt);
                 wx.sendSocketMessage({
                     data:last});
+
             }
 
         })
         wx.onSocketError(function(res){
             console.log('WebSocket连接打开失败，请检查！')
+            console.log(res)
+            var modelContent = res.errMsg;
+            wx.showModal({
+              content: modelContent,
+              showCancel: false,
+              success: function (res) {
+                if (res.confirm) {
+                  console.log('用户点击确定')
+                }
+              }
+            });
+            
         })
+        wx.onSocketMessage(function(res) {
+            console.log('收到服务器内容：' + res.data);
+            var re = JSON.parse(res.data);
+            wx.hideToast();
+            var matchRate = re.resultValue*100;
+            var modelContent = "";
+            var matchResult = "";
+            if(re.resultState == "ok"){
+              if(re.resultValue > that.data.gap){
+                matchResult ="匹配成功 "
+              }else{
+                matchResult = "匹配失败 "
+              }
+              modelContent = matchResult+ '匹配率：'+matchRate.toFixed(2)+'%'
+            }else{
+              modelContent = "出错，请重试！"
+            }
 
+            wx.showModal({
+                content: modelContent,
+                showCancel: false,
+                success: function (res) {
+                    if (res.confirm) {
+                        console.log('用户点击确定')
+                    }
+                }
+            });
+        })
+    },
+    testResponse:function () {
+        wx.hideLoading();
+        var re = {
+            "requestType" : "replyFace",
+            "sourceHDL" : "0000asdff234",
+            "resultState" : "ok",
+            "resultValue" : "0.56"
+        };
+        var matchRate = re.resultValue*100
+        wx.showModal({
+            content: '匹配率：'+matchRate.toFixed(2)+'%',
+            showCancel: false,
+            success: function (res) {
+                if (res.confirm) {
+                    console.log('用户点击确定')
+                }
+            }
+        });
     },
     onLoad: function () {
         console.log('onLoad');
