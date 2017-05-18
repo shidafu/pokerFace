@@ -1,106 +1,135 @@
-<html ng-app="ionicApp">
+<html ng-app='ionicApp'>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <meta charset='utf-8'>
+    <meta name='viewport' content='initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width'>
     <title>选择图片</title>
     <style>
         #img_div1 {
-            width:50%;
-            height:50%;
-            float:left;
-            padding:10px;
+            width: 50%;
+            height: 50%;
+            float: left;
+            padding: 10px;
         }
+
         #img_div2 {
-            width:50%;
-            height:50%;
-            float:right;
-            padding:10px;
+            width: 50%;
+            height: 50%;
+            float: right;
+            padding: 10px;
         }
+
         #img1 {
-            max-width:100%;
-            max-height:75%;
+            max-width: 100%;
+            max-height: 75%;
         }
+
         #img2 {
-            max-width:100%;
-            max-height:75%;
+            max-width: 100%;
+            max-height: 75%;
         }
+
         #button1 {
-            width:100%;
-            max-height:25%;
+            width: 100%;
+            max-height: 25%;
         }
+
         #button2 {
-            width:100%;
-            max-height:25%;
+            width: 100%;
+            max-height: 25%;
         }
+
         #submit_button {
-            width:100%;
+            width: 100%;
         }
     </style>
-    <link href="https://cdn.bootcss.com/ionic/1.3.2/css/ionic.css" rel="stylesheet">
-    <script src="https://cdn.bootcss.com/ionic/1.3.2/js/ionic.bundle.min.js"></script>
-    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $("#input1").change(function (e) {
+    <link href='https://cdn.bootcss.com/ionic/1.3.2/css/ionic.css' rel='stylesheet'>
+    <!--<script src='https://cdn.bootcss.com/ionic/1.3.2/js/ionic.bundle.min.js'></script>-->
+    <!--<script src='https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js'></script>-->
+    <script src='js//TmtWebSocket.js'></script>
+    <script type='text/javascript'>
+        window.onload = function () {
+            var websocket =new TmtWebSocket();
+            websocket.https('47.94.87.139:9002');
+            websocket.doSend = function (Data) {
+                TmtWs.send(Data);
+            };
+            websocket.onMsg = function (Msg){
+                console.log(Msg);
+            };
+            
+            var base64_1 = undefined;
+            var base64_2 = undefined;
+            document.getElementById('input1').onchange = function (e) {
                 console.info(e.target.files[0]);//图片文件
-                var dom = $("input[id^='input1']")[0];
-                console.info(dom.value);//这个是文件的路径 C:\fakepath\icon (5).png
-                console.log(e.target.value);//这个也是文件的路径和上面的dom.value是一样的
                 var reader = new FileReader();
                 reader.onload = (function (file) {
                     return function (e) {
-                        console.info(this.result); //这个就是base64的数据了
-                        var sss = $("#img1");
-                        $("#img1")[0].src = this.result;
+                        var img1 = document.getElementById('img1');
+                        img1.onload = function () {
+                            var canvas1 = document.createElement('canvas');
+                            var ctx = canvas1.getContext('2d');
+                            canvas1.width = img1.width;
+                            canvas1.height = img1.height;
+                            ctx.drawImage(img1, 0, 0, img1.width, img1.height);
+                            base64_1 = canvas1.toDataURL('image/jpeg', 0.7)
+                            //console.info(cropStr); //这个就是base64的数据了
+                        };
+                        img1.src = this.result;
                     };
                 })(e.target.files[0]);
                 reader.readAsDataURL(e.target.files[0]);
-            });
-            $("#button1").click(function () {
-                console.info("#button1");//图片文件
-                $("#input1").click();
-            });
+            };
+            document.getElementById('button1').onclick = function () {
+                document.getElementById('input1').click();
+            };
 
-            $("#input2").change(function (e) {
+            document.getElementById('input2').onchange = function (e) {
                 console.info(e.target.files[0]);//图片文件
-                var dom = $("input[id^='input2']")[0];
-                console.info(dom.value);//这个是文件的路径 C:\fakepath\icon (5).png
-                console.log(e.target.value);//这个也是文件的路径和上面的dom.value是一样的
                 var reader = new FileReader();
                 reader.onload = (function (file) {
                     return function (e) {
-                        console.info(this.result); //这个就是base64的数据了
-                        var sss = $("#img2");
-                        $("#img2")[0].src = this.result;
+                        var img2 = document.getElementById('img2');
+                        img2.onload = function () {
+                            var canvas2 = document.createElement('canvas');
+                            var ctx = canvas2.getContext('2d');
+                            canvas2.width = img2.width;
+                            canvas2.height = img2.height;
+                            ctx.drawImage(img2, 0, 0, img2.width, img2.height);
+                            base64_2 = canvas2.toDataURL('image/jpeg', 0.7)
+                            //console.info(cropStr); //这个就是base64的数据了
+                        };
+                        img2.src = this.result;
                     };
                 })(e.target.files[0]);
                 reader.readAsDataURL(e.target.files[0]);
-            });
-            $("#button2").click(function () {
-                console.info("#button2");//图片文件
-                $("#input2").click();
-            });
-        });
+            };
+            document.getElementById('button2').onclick = function () {
+                document.getElementById('input2').click();
+            };
+            document.getElementById('submit_button').onclick = function () {
+
+            };
+        };
     </script>
 </head>
 <body>
-<div class="content has-header">
-    <div id="img_div1" class="item item-body">
-        <img id="img1" class="full-image" src="src/face1.gif">
-        <button id="button1" class="button button-dark icon-left ion-images">
+<div class='content has-header'>
+    <div id='img_div1' class='item item-body'>
+        <img id='img1' class='full-image' src='src/face1.gif'>
+        <button id='button1' class='button button-dark icon-left ion-images'>
             选择第一张图片
         </button>
-        <input id="input1" type="file" accept=".gif,.jpg,.jpeg,.png" style="visibility: hidden">
+        <input id='input1' type='file' accept='.gif,.jpg,.jpeg,.png' style='visibility: hidden'>
     </div>
-    <div id="img_div2" class="item item-body">
-        <img id="img2" class="full-image" src="src/face2.gif">
-        <button id="button2" class="button button-dark icon-left ion-images">
+    <div id='img_div2' class='item item-body'>
+        <img id='img2' class='full-image' src='src/face2.gif'>
+        <button id='button2' class='button button-dark icon-left ion-images'>
             选择第二张图片
         </button>
-        <input id="input2" type="file" accept=".gif,.jpg,.jpeg,.png" style="visibility: hidden">
+        <input id='input2' type='file' accept='.gif,.jpg,.jpeg,.png' style='visibility: hidden'>
     </div>
-    <div id="submit_div" class="item item-body">
-        <button id="submit_button" class="button button-dark ion-ios-search-strong">
+    <div id='submit_div' class='item item-body'>
+        <button id='submit_button' class='button button-dark ion-ios-search-strong'>
             提交
         </button>
     </div>
