@@ -13,6 +13,7 @@
 #include "face_alignment.h"
 #include "face_identification.h"
 #include "common.h"
+#include "mformat.hpp"
 #include <cv.hpp>
 namespace tools
 {
