@@ -86,7 +86,19 @@ cv::Mat base64toMat(std::string base64str)
 	}
 	return m;
 }
-
+cv::Mat readImgFile(std::string filePath)
+{
+	cv::Mat m;
+	try {
+		m = cv::imread(filePath);
+	}
+	catch(cv::Exception e)
+	{
+		std::cout << "读取文件出错！";
+		std::cout << "文件路径：" << filePath << std::endl;
+	}
+	return m;
+}
 
 websocketpp::connection_hdl computServerHDL;
 std::vector<websocketpp::connection_hdl> clientHDLvec;
@@ -128,8 +140,8 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 		{
 			std::string pic1str = root.get("pic1Data", "").asString();
 			std::string pic2str = root.get("pic2Data", "").asString();
-			cv::Mat img1 = base64toMat(pic1str);
-			cv::Mat img2 = base64toMat(pic2str);
+			cv::Mat img1 = readImgFile(pic1str);
+			cv::Mat img2 = readImgFile(pic2str);
 			if (img1.empty()|img2.empty())
 			{
 				Jsvalue["resultState"] = "error";

@@ -225,10 +225,9 @@ context_ptr on_tls_init(tls_mode mode, websocketpp::connection_hdl hdl) {
 	try {
 		if (mode == MOZILLA_MODERN) {
 			// Modern disables TLSv1
-			ctx->set_options( asio::ssl::context::default_workarounds |
+			ctx->set_options( asio::ssl::context::default_workarounds /*|
 				asio::ssl::context::no_sslv2 |
-				asio::ssl::context::no_sslv3 |
-				asio::ssl::context::no_tlsv1 
+				asio::ssl::context::no_sslv3 */
 				//asio::ssl::context::tlsv1 |
 				//asio::ssl::context::tlsv11 |
 				//asio::ssl::context::tlsv12 /*|
@@ -236,10 +235,9 @@ context_ptr on_tls_init(tls_mode mode, websocketpp::connection_hdl hdl) {
 				);
 		}
 		else {
-			ctx->set_options(asio::ssl::context::default_workarounds |
+			ctx->set_options(asio::ssl::context::default_workarounds/* |
 				asio::ssl::context::no_sslv2 |
-				asio::ssl::context::no_sslv3 |
-				asio::ssl::context::no_tlsv1 
+				asio::ssl::context::no_sslv3 */
 				//asio::ssl::context::tlsv1 |
 				//asio::ssl::context::tlsv11 |
 				//asio::ssl::context::tlsv12 /*|
