@@ -166,6 +166,7 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 					cv::cvtColor(img1, gray_img1, CV_RGB2GRAY);
 					seeta::ImageData gray_img_data1(gray_img1.cols, gray_img1.rows, gray_img1.channels());
 					gray_img_data1.data = gray_img1.data;
+					std::cout << "Load image1 width: " << img1.cols << " ,height: " << img1.rows << std::endl;
 
 					seeta::ImageData img_data2(img2.cols, img2.rows, img2.channels());
 					img_data2.data = img2.data;
@@ -173,6 +174,7 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 					cv::cvtColor(img2, gray_img2, CV_RGB2GRAY);
 					seeta::ImageData gray_img_data2(gray_img2.cols, gray_img2.rows, gray_img2.channels());
 					gray_img_data2.data = gray_img2.data;
+					std::cout << "Load image2 width: " << img2.cols << " ,height: " << img2.rows << std::endl;
 
 					// Detect face.
 					std::vector <seeta::FaceInfo> face_info1;
