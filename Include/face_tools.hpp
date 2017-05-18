@@ -124,10 +124,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
+				std::cout << "faceDetector::initial failed\n";
 				return false;
 			}
 			catch (...)
 			{
+				std::cout << "faceDetector::initial failed\n";
 				return false;
 			}
 		}
