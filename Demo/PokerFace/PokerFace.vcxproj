@@ -116,12 +116,7 @@
     <ClInclude Include="..\..\Include\face_tools.hpp" />
     <ClInclude Include="..\..\Include\image_tools.hpp" />
     <ClInclude Include="..\..\Include\mformat.hpp" />
-    <ClInclude Include="..\..\Include\MLog\MLog.hpp" />
-    <ClInclude Include="..\..\Include\MThread\MThread_base.hpp" />
-    <ClInclude Include="..\..\Include\MTimer\MTimer.hpp" />
-    <ClInclude Include="..\..\Include\Processor.hpp" />
     <ClInclude Include="..\..\Include\Type\Circular_buffer.hpp" />
-    <ClInclude Include="..\..\Include\Type\MFormat.hpp" />
     <ClInclude Include="CommonFunc.h" />
     <ClInclude Include="PokerFace.h" />
     <ClInclude Include="PokerFaceDlg.h" />
