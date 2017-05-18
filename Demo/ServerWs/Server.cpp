@@ -3,10 +3,7 @@
 
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
-#include <websocketpp//client.hpp>
 #include <websocketpp/base64/base64.hpp>
-#include <websocketpp/config/asio.hpp>
-#include <websocketpp/config/asio_no_tls_client.hpp>
 
 //#include "cv.h"
 #include <cv.hpp>
@@ -25,19 +22,15 @@
 #include <boost/chrono.hpp>
 
 #include <thread>
-
-typedef websocketpp::server<websocketpp::config::asio_tls> server_tls;
-typedef websocketpp::server<websocketpp::config::asio> server_plain;
-typedef websocketpp::client<websocketpp::config::asio_client> client;
-
+typedef websocketpp::server<websocketpp::config::asio> server;
 
 using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
 using websocketpp::lib::bind;
+// pull out the type of messages sent by our config
+typedef server::message_ptr message_ptr;
 
 // pull out the type of messages sent by our config
-typedef websocketpp::config::asio::message_type::ptr message_ptr;
-typedef websocketpp::lib::shared_ptr<websocketpp::lib::asio::ssl::context> context_ptr;
 
 // "requestType" = "askFace"
 // "recognitionType" = "inOne"-"inTwo"
@@ -56,10 +49,18 @@ cv::Mat base64toMat(std::string base64str)
 {
 	std::string mstr1;
 	cv::Mat m;
+	size_t Offt = base64str.find("/9j/");
+	if (Offt < 0)
+	{
+		std::cout << "Not a Base64Image!" << std::endl;
+		return m;
+	}
+	const char* Pos0 = base64str.c_str() + Offt;
+	std::string mstr2 = Pos0;
 	try
 	{
 		//RelicHelper::Base64Decode(mmsg2, &mstr1);
-		mstr1 = websocketpp::base64_decode(base64str);
+		mstr1 = websocketpp::base64_decode(mstr2);
 		std::cout << "Base64Decode over!" << std::endl;
 	}
 	catch (...)
@@ -107,8 +108,9 @@ std::vector<websocketpp::connection_hdl> clientHDLvec;
 tools::faceDetector face_detector;
 //tools::faceCompare face_compare;
 
-void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
+void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 	std::string mmsg = msg->get_payload();
+	//std::cout << mmsg<<std::endl;
 	Json::Value root;
 	std::stringstream ssm;
 	std::string requestTypeStr;
@@ -118,12 +120,13 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 		ssm << mmsg;
 		ssm >> root;
 		std::cout << "get a json data!" << std::endl;
-		std::cout << root << std::endl;
+		//std::cout << root << std::endl;
 		requestTypeStr = root.get("requestType", "").asString();
 	}
 	catch (...)
 	{
 		std::cout << "decode jason data error!" << std::endl;
+		std::cout << mmsg << std::endl;
 		return;
 	}
 	
@@ -149,7 +152,7 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 				img1 = readImgFile(pic1str);
 				img2 = readImgFile(pic2str);
 			}
-			else if
+			else if(tmpstr == "data")
 			{
 				img1 = base64toMat(pic1str);
 				img2 = base64toMat(pic2str);
@@ -244,117 +247,19 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 	}
 	
 
-	//int len = mstr1.length();
-	//if (len == 0)
-	//{
-	//	int a = 1;
-	//}
-	////if (len<1000)
-	////{
-	////	std::cout << "Too SHort !" << std::endl;
-	////	return;
-	////}
-	//std::cout << "Length: " << len << std::endl;
-	//byte* imgbuffer = new byte[len];
-	//for (int i = 0; i < len; i++)
-	//{
-	//	buff.push_back(mstr1[i]);
-	//}
-	////memcpy(imgbuffer, mstr.data(), len);
-	//cv::Mat mMat;
-	//try
-	//{
-	//	mMat = cv::imdecode(buff, CV_LOAD_IMAGE_COLOR);
-	//	std::cout << "imdecode over!" << std::endl;
-	//}
-	//catch (...)
-	//{
-	//	std::cout << "imdecode error!" << std::endl;
-	//	return;
-	//}
-
-	//int imagesize = len / 3;
-	//Mat mMat(2, &imagesize, CV_8UC3, imgbuffer);
-	//CImage mimg(imgbuffer,len, CXIMAGE_FORMAT_JPG)
-	/*	try
-	{
-	imshow("接收", mMat);
-	waitKey();
-	}
-	catch (...)
-	{
-	std::cout << "image error!" << std::endl;
-	return;
-	}*/
 
 
 
 }
-void on_open(client* c, websocketpp::connection_hdl hdl)
-{
-	Json::Value root;
-	root["requestType"] = "addServer";
-	std::stringstream ssm;
-	ssm << root;
-	std::string strdata = ssm.str();
-	try {
-		c->send(hdl, strdata/*msg->get_payload()*/, websocketpp::frame::opcode::text/*msg->get_opcode()*/);
-	}
-	catch (const websocketpp::lib::error_code& e) {
-		std::cout << "ask addServer failed because: " << e
-			<< "(" << e.message() << ")" << std::endl;
-	}
-	std::cout << "ask add server ok!" << std::endl;
+void on_http(server * s, websocketpp::connection_hdl hdl) {
+	server::connection_ptr con = s->get_con_from_hdl(hdl);
+
+	con->set_body("Hello World! Connection is http:");
+	con->set_status(websocketpp::http::status_code::ok);
 }
-void connectRelayServer()
-{
-	client c;
-	std::string uri = "ws://localhost:9003";
-
-	try {
-
-		// Set logging to be pretty verbose (everything except message payloads)
-
-		c.set_access_channels(websocketpp::log::alevel::all);
-
-		c.clear_access_channels(websocketpp::log::alevel::frame_payload);
-		// Initialize ASIO
-		c.init_asio();
-		// Register our message handler
-		c.set_message_handler(bind(&on_message, &c, ::_1, ::_2));
-		c.set_open_handler(bind(&on_open, &c, ::_1));
-		websocketpp::lib::error_code ec;
-
-		client::connection_ptr con = c.get_connection(uri, ec);
-
-		if (ec) {
-
-			std::cout << "could not create connection because: " << ec.message() << std::endl;
-			return ;
-		}
-		// Note that connect here only requests a connection. No network messages are
-		// exchanged until the event loop starts running in the next line.
-		c.connect(con);
-		// Start the ASIO io_service run loop
-		// this will cause a single connection to be made to the server. c.run()
-
-		// will exit when this connection is closed.
-		c.run();
-
-	}
-	catch (websocketpp::exception const & e) {
-
-		std::cout << e.what() << std::endl;
-
-	}
-
-}
-
-
-
 int main(int argc, char* argv[])
 {
-	//Load faceTool.
+	//Load faceTool.    server echo_server;
 	std::string exe_fullpath_str = argv[0];
 	char exe_path[512];
 	tools::full_to_path(argv[0], exe_path, 512);
@@ -364,18 +269,39 @@ int main(int argc, char* argv[])
 		(exe_path_str + "seeta_fa_v1.1.bin").c_str(),
 		(exe_path_str + "seeta_fr_v1.0.bin").c_str());
 	//tools::faceCompare face_compare;
-	//face_compare.initial(tools::accept_size_3X2);
+	//face_compare.initial(t
 
-	int connetTryCuont = 0;
-	while (true)
-	{
-		connetTryCuont++;
-		std::cout << "\ntry connect to RelayServer: " << connetTryCuont << " times." << std::endl;
-		connectRelayServer();
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	server wsServer;
+
+	try {
+		// Set logging settings
+		wsServer.set_access_channels(websocketpp::log::alevel::all);
+		wsServer.clear_access_channels(websocketpp::log::alevel::frame_payload);
+
+		// Initialize Asio
+		wsServer.init_asio();
+
+		// Register our message handler
+		wsServer.set_message_handler(bind(&on_message, &wsServer, ::_1, ::_2));
+		wsServer.set_http_handler(bind(&on_http, &wsServer, ::_1));
+		//echo_server
+		// Listen on port 9002
+		int port = 9003;
+		wsServer.listen(port);
+		std::cout << "Listening Port:" << port << std::endl;
+		// Start the server accept loop
+		wsServer.start_accept();
+
+		// Start the ASIO io_service run loop
+		wsServer.run();
 	}
-	// Start the ASIO io_service run loop
+	catch (websocketpp::exception const & e) {
+		std::cout << e.what() << std::endl;
+	}
+	catch (...) {
+		std::cout << "other exception" << std::endl;
+	}
 
 	return 0;
 }

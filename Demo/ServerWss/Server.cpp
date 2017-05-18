@@ -26,10 +26,7 @@
 
 #include <thread>
 
-typedef websocketpp::server<websocketpp::config::asio_tls> server_tls;
-typedef websocketpp::server<websocketpp::config::asio> server_plain;
-typedef websocketpp::client<websocketpp::config::asio_client> client;
-
+typedef websocketpp::server<websocketpp::config::asio_tls> server;
 
 using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
@@ -56,10 +53,18 @@ cv::Mat base64toMat(std::string base64str)
 {
 	std::string mstr1;
 	cv::Mat m;
+	size_t Offt = base64str.find("/9j/");
+	if (Offt < 0)
+	{
+		std::cout << "Not a Base64Image!" << std::endl;
+		return m;
+	}
+	const char* Pos0 = base64str.c_str() + Offt;
+	std::string mstr2 = Pos0;
 	try
 	{
 		//RelicHelper::Base64Decode(mmsg2, &mstr1);
-		mstr1 = websocketpp::base64_decode(base64str);
+		mstr1 = websocketpp::base64_decode(mstr2);
 		std::cout << "Base64Decode over!" << std::endl;
 	}
 	catch (...)
@@ -107,8 +112,9 @@ std::vector<websocketpp::connection_hdl> clientHDLvec;
 tools::faceDetector face_detector;
 //tools::faceCompare face_compare;
 
-void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
+void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 	std::string mmsg = msg->get_payload();
+	//std::cout << mmsg << std::endl;
 	Json::Value root;
 	std::stringstream ssm;
 	std::string requestTypeStr;
@@ -118,12 +124,13 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 		ssm << mmsg;
 		ssm >> root;
 		std::cout << "get a json data!" << std::endl;
-		std::cout << root << std::endl;
+		//std::cout << root << std::endl;
 		requestTypeStr = root.get("requestType", "").asString();
 	}
 	catch (...)
 	{
 		std::cout << "decode jason data error!" << std::endl;
+		std::cout << mmsg << std::endl;
 		return;
 	}
 	
@@ -149,7 +156,7 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 				img1 = readImgFile(pic1str);
 				img2 = readImgFile(pic2str);
 			}
-			else if
+			else if(tmpstr=="data")
 			{
 				img1 = base64toMat(pic1str);
 				img2 = base64toMat(pic2str);
@@ -290,68 +297,82 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 
 
 }
-void on_open(client* c, websocketpp::connection_hdl hdl)
-{
-	Json::Value root;
-	root["requestType"] = "addServer";
-	std::stringstream ssm;
-	ssm << root;
-	std::string strdata = ssm.str();
-	try {
-		c->send(hdl, strdata/*msg->get_payload()*/, websocketpp::frame::opcode::text/*msg->get_opcode()*/);
-	}
-	catch (const websocketpp::lib::error_code& e) {
-		std::cout << "ask addServer failed because: " << e
-			<< "(" << e.message() << ")" << std::endl;
-	}
-	std::cout << "ask add server ok!" << std::endl;
-}
-void connectRelayServer()
-{
-	client c;
-	std::string uri = "ws://localhost:9003";
+enum tls_mode {
+	MOZILLA_INTERMEDIATE = 1,
+	MOZILLA_MODERN = 2
+};
+
+context_ptr on_tls_init(tls_mode mode, websocketpp::connection_hdl hdl) {
+	namespace asio = websocketpp::lib::asio;
+
+	std::cout << "on_tls_init called with hdl: " << hdl.lock().get() << std::endl;
+	std::cout << "using TLS mode: " << (mode == MOZILLA_MODERN ? "Mozilla Modern" : "Mozilla Intermediate") << std::endl;
+
+	context_ptr ctx = websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::sslv23);
 
 	try {
-
-		// Set logging to be pretty verbose (everything except message payloads)
-
-		c.set_access_channels(websocketpp::log::alevel::all);
-
-		c.clear_access_channels(websocketpp::log::alevel::frame_payload);
-		// Initialize ASIO
-		c.init_asio();
-		// Register our message handler
-		c.set_message_handler(bind(&on_message, &c, ::_1, ::_2));
-		c.set_open_handler(bind(&on_open, &c, ::_1));
-		websocketpp::lib::error_code ec;
-
-		client::connection_ptr con = c.get_connection(uri, ec);
-
-		if (ec) {
-
-			std::cout << "could not create connection because: " << ec.message() << std::endl;
-			return ;
+		if (mode == MOZILLA_MODERN) {
+			// Modern disables TLSv1
+			ctx->set_options(asio::ssl::context::default_workarounds /*|
+																	 asio::ssl::context::no_sslv2 |
+																	 asio::ssl::context::no_sslv3 */
+																	 //asio::ssl::context::tlsv1 |
+																	 //asio::ssl::context::tlsv11 |
+																	 //asio::ssl::context::tlsv12 /*|
+																	 //asio::ssl::context::single_dh_use*/
+				);
 		}
-		// Note that connect here only requests a connection. No network messages are
-		// exchanged until the event loop starts running in the next line.
-		c.connect(con);
-		// Start the ASIO io_service run loop
-		// this will cause a single connection to be made to the server. c.run()
+		else {
+			ctx->set_options(asio::ssl::context::default_workarounds/* |
+																	asio::ssl::context::no_sslv2 |
+																	asio::ssl::context::no_sslv3 */
+																	//asio::ssl::context::tlsv1 |
+																	//asio::ssl::context::tlsv11 |
+																	//asio::ssl::context::tlsv12 /*|
+																	//asio::ssl::context::single_dh_use*/
+				);
+		}
+		//ctx->set_password_callback(bind(&get_password));
+		//ctx->use_certificate_chain_file("server.pem");
+		//ctx->use_private_key_file("server.pem", asio::ssl::context::pem);
+		//ctx->us
+		//ctx->set_default_verify_paths();
+		ctx->use_certificate_file("key/public.pem", asio::ssl::context::pem);
+		ctx->use_private_key_file("key/214099680310031.key", asio::ssl::context::pem);
+		//ctx->use_certificate_chain_file("key/chain.pem");
+		//ctx->use_certificate_file("key/214099680310031.pem", asio::ssl::context::pem);
 
-		// will exit when this connection is closed.
-		c.run();
+		// Example method of generating this file:
+		// `openssl dhparam -out dh.pem 2048:
+		// Mozilla Intermediate suggests 1024 as the minimum size to use:
+		// Mozilla Modern suggests 2048 as the minimum size to use:
+		//ctx->use_tmp_dh_file("dh.pem");
+		//ctx->set_options();
+		std::string ciphers;
 
+		if (mode == MOZILLA_MODERN) {
+			ciphers = "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK";
+
+		}
+		else {
+			ciphers = "ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA";
+		}
+
+		if (SSL_CTX_set_cipher_list(ctx->native_handle(), ciphers.c_str()) != 1) {
+			std::cout << "Error setting cipher list" << std::endl;
+		}
 	}
-	catch (websocketpp::exception const & e) {
-
-		std::cout << e.what() << std::endl;
-
+	catch (std::exception& e) {
+		std::cout << "Exception: " << e.what() << std::endl;
 	}
-
+	return ctx;
 }
+void on_http(server * s, websocketpp::connection_hdl hdl) {
+	server::connection_ptr con = s->get_con_from_hdl(hdl);
 
-
-
+	con->set_body("Hello World!Connection is https: ");
+	con->set_status(websocketpp::http::status_code::ok);
+}
 int main(int argc, char* argv[])
 {
 	//Load faceTool.
@@ -366,16 +387,32 @@ int main(int argc, char* argv[])
 	//tools::faceCompare face_compare;
 	//face_compare.initial(tools::accept_size_3X2);
 
-	int connetTryCuont = 0;
-	while (true)
-	{
-		connetTryCuont++;
-		std::cout << "\ntry connect to RelayServer: " << connetTryCuont << " times." << std::endl;
-		connectRelayServer();
+	server wssServer;
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-	}
+	// Initialize ASIO
+	wssServer.init_asio();
+
+
+
+	wssServer.set_access_channels(websocketpp::log::alevel::all);
+	wssServer.clear_access_channels(websocketpp::log::alevel::frame_payload);
+	// Register our message handler
+	wssServer.set_message_handler(bind(&on_message, &wssServer, ::_1, ::_2));
+	wssServer.set_http_handler(bind(&on_http, &wssServer, ::_1));
+	wssServer.set_tls_init_handler(bind(&on_tls_init, MOZILLA_INTERMEDIATE, ::_1));
+
+
+	int port = 9002;
+	wssServer.listen(port);
+	std::cout << "Listening Port:" << port << std::endl;
+	// Listen on port 9002
+	//wssServer.listen(port);
+
+	// Start the server accept loop
+	wssServer.start_accept();
+
 	// Start the ASIO io_service run loop
+	wssServer.run(); //he ASIO io_service run loop
 
 	return 0;
 }
