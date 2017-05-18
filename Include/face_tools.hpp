@@ -138,7 +138,11 @@ namespace tools
 			std::vector <seeta::FaceInfo> & face_info,
 			std::vector <tools::faceLandMark> & face_marks)
 		{
-			if (p_face_detector == 0 || p_point_detector == 0) return false;
+			if (p_face_detector == 0 || p_point_detector == 0)
+			{
+				std::cout << "faceDetector::detect failed\n";
+				return -1;
+			}
 			try
 			{
 				face_info = p_face_detector->Detect(img);
@@ -152,10 +156,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
+				std::cout << "faceDetector::detect failed\n";
 				return -1;
 			}
 			catch (...)
 			{
+				std::cout << "faceDetector::initial failed\n";
 				return -1;
 			}
 		}
@@ -164,7 +170,11 @@ namespace tools
 			std::vector <seeta::FaceInfo> & face_info,
 			std::vector <tools::faceLandMark> & face_marks)
 		{
-			if (p_face_detector == 0 || p_point_detector == 0) return false;
+			if (p_face_detector == 0 || p_point_detector == 0)
+			{
+				std::cout << "faceDetector::detect failed\n";
+				return -1;
+			}
 			try
 			{
 				seeta::ImageData img_data(img.cols, img.rows, img.channels());
@@ -180,10 +190,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
+				std::cout << "faceDetector::detect failed\n";
 				return -1;
 			}
 			catch (...)
 			{
+				std::cout << "faceDetector::detect failed\n";
 				return -1;
 			}
 		}
@@ -209,17 +221,23 @@ namespace tools
 			tools::faceLandMark face_mark,
 			const seeta::ImageData& corp_img)
 		{
-			if (feat_size == 0) return;
+			if (feat_size == 0)
+			{
+				std::cout << "faceDetector::corp failed\n";
+				return;
+			}
 			try
 			{
 				face_recognizer.CropFace(img, face_mark.mark, corp_img);
 			}
 			catch (std::exception e)
 			{
+				std::cout << "faceDetector::corp failed\n";
 				return;
 			}
 			catch (...)
 			{
+				std::cout << "faceDetector::corp failed\n";
 				return;
 			}
 		}
@@ -228,7 +246,11 @@ namespace tools
 			tools::faceLandMark face_mark,
 			cv::Mat& corp_img)
 		{
-			if (feat_size == 0) return;
+			if (feat_size == 0)
+			{
+				std::cout << "faceDetector::corp failed\n";
+				return;
+			}
 			try
 			{
 				seeta::ImageData img_data(img.cols, img.rows, img.channels());
@@ -240,10 +262,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
+				std::cout << "faceDetector::corp failed\n";
 				return;
 			}
 			catch (...)
 			{
+				std::cout << "faceDetector::corp failed\n";
 				return;
 			}
 		}
@@ -258,8 +282,12 @@ namespace tools
 			{
 				face_recognizer.ExtractFeature(corp_img, fea);
 			}
-			catch (std::exception e){}
-			catch (...){}
+			catch (std::exception e) {
+				std::cout << "faceDetector::getfeature failed\n";
+			}
+			catch (...) {
+				std::cout << "faceDetector::getfeature failed\n";
+			}
 		}
 
 		void getfeature(cv::Mat corp_img, float* fea) {
@@ -269,13 +297,20 @@ namespace tools
 				img_data.data = corp_img.data;
 				face_recognizer.ExtractFeature(img_data, fea);
 			}
-			catch (std::exception e) {}
-			catch (...) {}
+			catch (std::exception e) {
+				std::cout << "faceDetector::getfeature failed\n";
+			}
+			catch (...) {
+				std::cout << "faceDetector::getfeature failed\n";
+			}
 		}
 
 		float compare(float* fea1, float* fea2)
 		{
-			if (feat_size == 0) return false;
+			if (feat_size == 0) {
+				std::cout << "faceDetector::compare failed\n";
+				return false;
+			}
 			try
 			{
 				// Caculate similarity of two faces
@@ -284,10 +319,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
+				std::cout << "faceDetector::compare failed\n";
 				return -1;
 			}
 			catch (...)
 			{
+				std::cout << "faceDetector::compare failed\n";
 				return -1;
 			}
 		}
@@ -295,7 +332,10 @@ namespace tools
 		float compare(const seeta::ImageData img1,
 			const seeta::ImageData img2)
 		{
-			if (feat_size == 0) return false;
+			if (feat_size == 0) {
+				std::cout << "faceDetector::compare failed\n";
+				return false;
+			}
 			try
 			{
 				float *fea1 = new float[feat_size];
@@ -312,10 +352,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
+				std::cout << "faceDetector::compare failed\n";
 				return -1;
 			}
 			catch (...)
 			{
+				std::cout << "faceDetector::compare failed\n";
 				return -1;
 			}
 		}
@@ -323,7 +365,10 @@ namespace tools
 		float compare(const cv::Mat img1,
 			const cv::Mat img2)
 		{
-			if (feat_size == 0) return false;
+			if (feat_size == 0) {
+				std::cout << "faceDetector::compare failed\n";
+				return false;
+			}
 			try
 			{
 				float *fea1 = new float[feat_size];
@@ -344,10 +389,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
+				std::cout << "faceDetector::compare failed\n";
 				return -1;
 			}
 			catch (...)
 			{
+				std::cout << "faceDetector::compare failed\n";
 				return -1;
 			}
 		}
@@ -357,7 +404,10 @@ namespace tools
 			seeta::FacialLandmark face1_marks[5],
 			seeta::FacialLandmark face2_marks[5])
 		{
-			if (feat_size == 0) return false;
+			if (feat_size == 0) {
+				std::cout << "faceDetector::corp_compare failed\n";
+				return false;
+			}
 			try
 			{
 				float *fea1 = new float[feat_size];
@@ -389,10 +439,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
+				std::cout << "faceDetector::corp_compare failed\n";
 				return -1;
 			}
 			catch (...)
 			{
+				std::cout << "faceDetector::corp_compare failed\n";
 				return -1;
 			}
 		}
