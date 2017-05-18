@@ -142,6 +142,9 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 			std::string pic2str = root.get("pic2Data", "").asString();
 			cv::Mat img1 = readImgFile(pic1str);
 			cv::Mat img2 = readImgFile(pic2str);
+			cv::imshow("img1", img1);
+			cv::imshow("img2", img2);
+			cv::waitKey(1);
 			if (img1.empty()|img2.empty())
 			{
 				Jsvalue["resultState"] = "error";
