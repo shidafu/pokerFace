@@ -149,7 +149,7 @@ void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 				img1 = readImgFile(pic1str);
 				img2 = readImgFile(pic2str);
 			}
-			else if
+			else if(tmpstr == "data")
 			{
 				img1 = base64toMat(pic1str);
 				img2 = base64toMat(pic2str);

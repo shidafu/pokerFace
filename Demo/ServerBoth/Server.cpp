@@ -27,7 +27,8 @@
 
 #include <thread>
 
-typedef websocketpp::server<websocketpp::config::asio_tls> server;
+typedef websocketpp::server<websocketpp::config::asio_tls> server_tls;
+typedef websocketpp::server<websocketpp::config::asio> server;
 
 using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
@@ -110,7 +111,7 @@ cv::Mat readImgFile(std::string filePath)
 	try {
 		m = cv::imread(filePath);
 	}
-	catch(cv::Exception e)
+	catch (cv::Exception e)
 	{
 		std::cout << "读取文件出错！";
 		std::cout << "文件路径：" << filePath << std::endl;
@@ -124,13 +125,17 @@ std::vector<websocketpp::connection_hdl> clientHDLvec;
 
 tools::faceDetector face_detector;
 //tools::faceCompare face_compare;
+std::mutex mu_tk;
 
-void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
-	std::string mmsg = msg->get_payload();
+std::string processWork(std::string inputstr)
+{
+	
+	std::string mmsg = inputstr;
 	//std::cout << mmsg << std::endl;
 	Json::Value root;
 	std::stringstream ssm;
 	std::string requestTypeStr;
+	std::string emptyStr;
 	try
 	{
 		ssm.str("");
@@ -144,13 +149,13 @@ void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 	{
 		std::cout << "decode jason data error!" << std::endl;
 		std::cout << mmsg << std::endl;
-		return;
+		return emptyStr;
 	}
-	
+
 	Json::Value Jsvalue;
 	Jsvalue["requestType"] = "replyFace";
 
-	if (requestTypeStr == "invalid") return;
+	if (requestTypeStr == "invalid") return emptyStr;
 	std::string tmpstr;
 	if (requestTypeStr == "askFace")
 	{
@@ -164,17 +169,17 @@ void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 
 			cv::Mat img1;
 			cv::Mat img2;
-			if (tmpstr=="address")
+			if (tmpstr == "address")
 			{
 				img1 = readImgFile(pic1str);
 				img2 = readImgFile(pic2str);
 			}
-			else if(tmpstr=="data")
+			else if (tmpstr == "data")
 			{
 				img1 = base64toMat(pic1str);
 				img2 = base64toMat(pic2str);
 			}
-			if (img1.empty()|img2.empty())
+			if (img1.empty() | img2.empty())
 			{
 				Jsvalue["resultState"] = "error";
 				std::cout << "请求两张图片，但或其中一张图片为空" << std::endl;
@@ -203,9 +208,10 @@ void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 
 				try
 				{
+					
 					float r = 0.01;
 					//算法部分
-
+					mu_tk.lock();
 					std::cout << "进行算法运算" << std::endl;
 
 					//Load images
@@ -251,13 +257,14 @@ void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 						std::cout << "Compare: similar=" << r << " ,take " << secs << " seconds." << std::endl;
 					}
 
-
+					mu_tk.unlock();
 					//算法部分结束
 					Jsvalue["resultState"] = "ok";
 					Jsvalue["resultValue"] = r;
 				}
 				catch (...)
 				{
+					mu_tk.unlock();
 					Jsvalue["resultState"] = "error";
 				}
 
@@ -265,68 +272,61 @@ void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 			Jsvalue["sourceHDL"] = root.get("sourceHDL", "").asString();
 
 			//algorithm
-			
+
 			std::stringstream ssm;
 			ssm << Jsvalue;
-			std::string buffstr =ssm.str();
-			try {
-				c->send(hdl, buffstr/*msg->get_payload()*/, websocketpp::frame::opcode::text/*msg->get_opcode()*/);
-			}
-			catch (const websocketpp::lib::error_code& e) {
-				std::cout << "Echo failed because: " << e
-					<< "(" << e.message() << ")" << std::endl;
-			}
-
+			std::string buffstr = ssm.str();
+			return buffstr;
 		}
 	}
-	
+}
 
-	//int len = mstr1.length();
-	//if (len == 0)
-	//{
-	//	int a = 1;
-	//}
-	////if (len<1000)
-	////{
-	////	std::cout << "Too SHort !" << std::endl;
-	////	return;
-	////}
-	//std::cout << "Length: " << len << std::endl;
-	//byte* imgbuffer = new byte[len];
-	//for (int i = 0; i < len; i++)
-	//{
-	//	buff.push_back(mstr1[i]);
-	//}
-	////memcpy(imgbuffer, mstr.data(), len);
-	//cv::Mat mMat;
-	//try
-	//{
-	//	mMat = cv::imdecode(buff, CV_LOAD_IMAGE_COLOR);
-	//	std::cout << "imdecode over!" << std::endl;
-	//}
-	//catch (...)
-	//{
-	//	std::cout << "imdecode error!" << std::endl;
-	//	return;
-	//}
 
-	//int imagesize = len / 3;
-	//Mat mMat(2, &imagesize, CV_8UC3, imgbuffer);
-	//CImage mimg(imgbuffer,len, CXIMAGE_FORMAT_JPG)
-	/*	try
-	{
-	imshow("接收", mMat);
-	waitKey();
+
+
+
+
+
+
+
+
+
+
+
+
+void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
+	std::string msgstr = msg->get_payload();
+
+	std::string outData = processWork(msgstr);
+	try {
+		c->send(hdl, outData/*msg->get_payload()*/, websocketpp::frame::opcode::text/*msg->get_opcode()*/);
 	}
-	catch (...)
-	{
-	std::cout << "image error!" << std::endl;
-	return;
-	}*/
+	catch (const websocketpp::lib::error_code& e) {
+		std::cout << "Echo failed because: " << e
+			<< "(" << e.message() << ")" << std::endl;
+	}
 
+		
+}
+
+void on_message_tls(server_tls* c, websocketpp::connection_hdl hdl, message_ptr msg) {
+	std::string msgstr = msg->get_payload();
+
+	std::string outData = processWork(msgstr);
+	try {
+		c->send(hdl, outData/*msg->get_payload()*/, websocketpp::frame::opcode::text/*msg->get_opcode()*/);
+	}
+	catch (const websocketpp::lib::error_code& e) {
+		std::cout << "Echo failed because: " << e
+			<< "(" << e.message() << ")" << std::endl;
+	}
 
 
 }
+
+
+
+
 enum tls_mode {
 	MOZILLA_INTERMEDIATE = 1,
 	MOZILLA_MODERN = 2
@@ -343,41 +343,29 @@ context_ptr on_tls_init(tls_mode mode, websocketpp::connection_hdl hdl) {
 	try {
 		if (mode == MOZILLA_MODERN) {
 			// Modern disables TLSv1
-			ctx->set_options(asio::ssl::context::default_workarounds /*|
-																	 asio::ssl::context::no_sslv2 |
-																	 asio::ssl::context::no_sslv3 */
-																	 //asio::ssl::context::tlsv1 |
+			ctx->set_options(asio::ssl::context::default_workarounds |
+							asio::ssl::context::no_sslv2 |
+							asio::ssl::context::no_sslv3 |
+							asio::ssl::context::no_tlsv1 
 																	 //asio::ssl::context::tlsv11 |
 																	 //asio::ssl::context::tlsv12 /*|
 																	 //asio::ssl::context::single_dh_use*/
 				);
 		}
 		else {
-			ctx->set_options(asio::ssl::context::default_workarounds/* |
-																	asio::ssl::context::no_sslv2 |
-																	asio::ssl::context::no_sslv3 */
-																	//asio::ssl::context::tlsv1 |
+			ctx->set_options(asio::ssl::context::default_workarounds |
+				asio::ssl::context::no_sslv2 |
+				asio::ssl::context::no_sslv3 |
+				asio::ssl::context::no_tlsv1
 																	//asio::ssl::context::tlsv11 |
 																	//asio::ssl::context::tlsv12 /*|
 																	//asio::ssl::context::single_dh_use*/
 				);
 		}
-		//ctx->set_password_callback(bind(&get_password));
-		//ctx->use_certificate_chain_file("server.pem");
-		//ctx->use_private_key_file("server.pem", asio::ssl::context::pem);
-		//ctx->us
-		//ctx->set_default_verify_paths();
+
 		ctx->use_certificate_file("key/public.pem", asio::ssl::context::pem);
 		ctx->use_private_key_file("key/214099680310031.key", asio::ssl::context::pem);
-		//ctx->use_certificate_chain_file("key/chain.pem");
-		//ctx->use_certificate_file("key/214099680310031.pem", asio::ssl::context::pem);
 
-		// Example method of generating this file:
-		// `openssl dhparam -out dh.pem 2048:
-		// Mozilla Intermediate suggests 1024 as the minimum size to use:
-		// Mozilla Modern suggests 2048 as the minimum size to use:
-		//ctx->use_tmp_dh_file("dh.pem");
-		//ctx->set_options();
 		std::string ciphers;
 
 		if (mode == MOZILLA_MODERN) {
@@ -403,6 +391,90 @@ void on_http(server * s, websocketpp::connection_hdl hdl) {
 	con->set_body("Hello World!Connection is https: ");
 	con->set_status(websocketpp::http::status_code::ok);
 }
+
+
+
+
+void websocketThreadFunc()
+{
+	std::cout << "进入websocket线程" << std::endl;
+	while (true)
+	{
+		
+		server wsServer;
+
+		try {
+			// Set logging settings
+			wsServer.set_access_channels(websocketpp::log::alevel::all);
+			wsServer.clear_access_channels(websocketpp::log::alevel::frame_payload);
+
+			// Initialize Asio
+			wsServer.init_asio();
+
+			// Register our message handler
+			wsServer.set_message_handler(bind(&on_message, &wsServer, ::_1, ::_2));
+			//wsServer.set_http_handler(bind(&on_http, &wsServer, ::_1));
+			//echo_server
+			// Listen on port 9002
+			int port = 9003;
+			wsServer.listen(port);
+			std::cout << "Listening Port:" << port << std::endl;
+			// Start the server accept loop
+			wsServer.start_accept();
+
+			// Start the ASIO io_service run loop
+			wsServer.run();
+		}
+		catch (websocketpp::exception const & e) {
+			std::cout << e.what() << std::endl;
+		}
+		catch (...) {
+			std::cout << "other exception" << std::endl;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	}
+}
+void websocketSTLThreadFunc()
+{
+	std::cout << "进入websocketSTL线程" << std::endl;
+	while (true)
+	{
+		server_tls wssServer;
+
+		// Initialize ASIO
+		wssServer.init_asio();
+
+		wssServer.set_access_channels(websocketpp::log::alevel::all);
+		wssServer.clear_access_channels(websocketpp::log::alevel::frame_payload);
+		// Register our message handler
+		wssServer.set_message_handler(bind(&on_message_tls, &wssServer, ::_1, ::_2));
+		//wssServer.set_http_handler(bind(&on_http, &wssServer, ::_1));
+		wssServer.set_tls_init_handler(bind(&on_tls_init, MOZILLA_INTERMEDIATE, ::_1));
+
+
+		int port = serverConfig.port_stl;
+		wssServer.listen(port);
+		std::cout << "TLListening Port:" << port << std::endl;
+		// Listen on port 9002
+		//wssServer.listen(port);
+
+		// Start the server accept loop
+		wssServer.start_accept();
+
+		// Start the ASIO io_service run loop
+		wssServer.run(); //he ASIO io_service run loop
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	}
+
+}
+
+
+
+
+
+
+
 int main(int argc, char* argv[])
 {
 	//Load faceTool.
@@ -416,8 +488,6 @@ int main(int argc, char* argv[])
 		(exe_path_str + "seeta_fr_v1.0.bin").c_str());
 	//tools::faceCompare face_compare;
 	//face_compare.initial(tools::accept_size_3X2);
-
-
 
 	Json::Value jsonConf;
 	std::ifstream infile;
@@ -452,32 +522,16 @@ int main(int argc, char* argv[])
 	std::cout << "是否显示图片:" << serverConfig.showImg << std::endl;
 	std::cout << "是否写入图片:" << serverConfig.writeImg << std::endl;
 
-	server wssServer;
-
-	// Initialize ASIO
-	wssServer.init_asio();
-
+	std::thread websocketThread = std::thread(std::bind(&websocketThreadFunc));
+	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+	std::thread websocketSTLThread = std::thread(std::bind(&websocketSTLThreadFunc));
 
 
-	wssServer.set_access_channels(websocketpp::log::alevel::all);
-	wssServer.clear_access_channels(websocketpp::log::alevel::frame_payload);
-	// Register our message handler
-	wssServer.set_message_handler(bind(&on_message, &wssServer, ::_1, ::_2));
-	wssServer.set_http_handler(bind(&on_http, &wssServer, ::_1));
-	wssServer.set_tls_init_handler(bind(&on_tls_init, MOZILLA_INTERMEDIATE, ::_1));
 
-
-	int port = serverConfig.port_stl;
-	wssServer.listen(port);
-	std::cout << "Listening Port:" << port << std::endl;
-	// Listen on port 9002
-	//wssServer.listen(port);
-
-	// Start the server accept loop
-	wssServer.start_accept();
-
-	// Start the ASIO io_service run loop
-	wssServer.run(); //he ASIO io_service run loop
+	while (true)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+	}
 
 	return 0;
 }
