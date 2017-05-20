@@ -269,7 +269,6 @@ std::string processWork(std::string inputstr)
 				}
 
 			}
-			Jsvalue["sourceHDL"] = root.get("sourceHDL", "").asString();
 
 			//algorithm
 
