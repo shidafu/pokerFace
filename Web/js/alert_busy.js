@@ -81,13 +81,14 @@ function alert_busy(contentStr) {
 
     document.body.insertBefore(shadowDiv, document.body.firstChild); //遮罩层加入文档
     //弹出框
-    var styleStr1 ='display:block;position:fixed;_position:absolute;left:25%;top:40%;'; //弹出框的位置
+    // var styleStr1 ='display:block;position:fixed;left:25%;top:20%;z-index:10001'; //弹出框的位置
+    var styleStr1 ='display:block;position:fixed;left:5%;top:5%;width:90%;z-index:10001'; //弹出框的位置
     var alertBox = document.createElement('div');
     alertBox.id = 'alertBox';
     alertBox.style.cssText = styleStr1;
     // //创建弹出框里面的内容P标签
     document.body.appendChild(alertBox);
-    $("#alertBox").append(contentStr);
+    document.getElementById("alertBox").innerHTML=contentStr;
     return{
         'shadowDiv':shadowDiv,
         'alertBox':alertBox
