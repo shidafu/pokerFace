@@ -1,0 +1,263 @@
+<html ng-app='ionicApp'>
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width'>
+    <title>面部比对</title>
+    <style>
+        #img_div1 {
+            width: 50%;
+            height: 75%;
+            float: left;
+            padding: 10px;
+        }
+
+        #img_div2 {
+            width: 50%;
+            height: 75%;
+            float: right;
+            padding: 10px;
+        }
+
+        #img1 {
+            max-width: 100%;
+            max-height: 75%;
+        }
+
+        #img2 {
+            max-width: 100%;
+            max-height: 75%;
+        }
+
+        #button1 {
+            width: 100%;
+            max-height: 15%;
+        }
+
+        #button2 {
+            width: 100%;
+            max-height: 15%;
+        }
+
+        #submit_button {
+            width: 100%;
+        }
+    </style>
+    <link href='https://cdn.bootcss.com/ionic/1.3.2/css/ionic.css' rel='stylesheet'>
+    <script src="https://cdn.bootcss.com/json2/20160511/json2.min.js"></script>
+    <!--<script src='https://cdn.bootcss.com/ionic/1.3.2/js/ionic.bundle.min.js'></script>-->
+    <!--<script src='https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js'></script>-->
+    <script src='js//alert_busy.js'></script>
+    <script type='text/javascript'>
+        window.onload = function () {
+            var img_div1 =document.getElementById("img_div1");
+            var canvas1 =document.getElementById("canvas1");
+            var mask1 =document.getElementById("mask1");
+            var img1 = new Image();//document.getElementById("img1");
+            var ctx1 = canvas1.getContext('2d');
+            var base64_1 = undefined;
+            var radio1 =1;
+            var base64width_1 =1;
+            var base64height_1 =1;
+            var render1 = function (imgsrc1,onrender1) {
+                img1.onload = function () {
+                    radio1=img1.height/img1.width;
+                    canvas1.width = img_div1.clientWidth;
+                    canvas1.height = radio1*img_div1.clientWidth;
+                    ctx1.drawImage(img1, 0, 0, img1.width, img1.height,
+                        0, 0, canvas1.width, canvas1.height);
+                    base64_1 = canvas1.toDataURL('image/jpeg');
+                    base64width_1 = canvas1.width;
+                    base64height_1 = canvas1.height
+                    //console.info(cropStr); //这个就是base64的数据了
+//                    doSend(base64_1,undefined);
+                    if(onrender1!=undefined) onrender1();
+                };
+                img1.src = imgsrc1;
+            };
+            render1('src/face1.gif');
+            var corpface1 = function (left,top,width,height) {
+                ctx1.fillStyle="#FF0000";
+                ctx1.fillRect(1,1,10,10);
+            };
+            corpface1(base64width_1/4, base64height_1/4, base64width_1/2, base64height_1/2);
+
+            var img_div2 =document.getElementById("img_div2");
+            var canvas2 =document.getElementById("canvas2");
+            var mask2 =document.getElementById("mask2");
+            var img2 = new Image();//document.getElementById("img1");
+            var ctx2 = canvas2.getContext('2d');
+            var base64_2 = undefined;
+            var radio2 =1;
+            var base64width_2 =1;
+            var base64height_2 =1;
+            var render2 = function (imgsrc2,onrender2) {
+                img2.onload = function () {
+                    radio2=img2.height/img2.width;
+                    canvas2.width = img_div2.clientWidth;
+                    canvas2.height = radio2*img_div2.clientWidth;
+                    ctx2.drawImage(img2, 0, 0, img2.width, img2.height,
+                        0, 0, canvas2.width, canvas2.height);
+                    base64_2 = canvas2.toDataURL('image/jpeg');
+                    base64width_2 = canvas2.width;
+                    base64height_2 = canvas2.height
+                    if(onrender2!=undefined) onrender2();
+                };
+                img2.src = imgsrc2;
+            };
+            render2('src/face2.gif');
+            var corpface2 = function (left,top,right,bottom) {
+                ctx2.strokeRect(base64width_2/4, base64height_2/4, base64width_2/2, base64height_2/2);
+            };
+            corpface2();
+
+            /**
+             * logis: logistic active function.
+             * @param x: input value.
+             * @param c: center of value,default is 0.
+             * @param d: delta of value,default is 1.
+             */
+            var logis = function (x, c, d) {
+                c = c || 0;
+                d = d || 1;
+                x -= c;
+                x /= d;
+                return 1 / (1+Math.exp(-x));
+            };
+
+            var websocket = new WebSocket("wss://pockerface.zhaopiano.cn:9002");
+            websocket.onopen = function () {
+                websocket.send("Hello pockerface");
+            };
+            websocket.onmessage = function (Msg){
+//                console.log(Msg);
+                var data=JSON.parse(Msg.data);
+                if(data.requestType=="replyFace"){
+                    if(data.resultState == "ok"){
+                        var pct=logis(data.resultValue,0.40,0.1);
+                        var pctStr = (pct * 100).toFixed(3) + "%";
+//                        alert("相似度:" + pctStr);
+                        var contentStr=
+                            "<div class='card'>"+
+                            "<div class='item item-text-wrap'>"+
+                            "相似度:" + pctStr +
+                            "<button id='okbtn' class='button button-block button-dark'"+
+                            ">OK</button>"+
+                            "</div></div>";
+                        var alert_busy_obj=alert_busy(contentStr);
+                        document.getElementById("okbtn").onclick=function () {
+                            alert_busy_close(alert_busy_obj);
+                        };
+//                        alert_busy_close(alert_busy_obj);
+                    }
+                }else if(data.requestType=="detectFirst"){
+                    if(data.resultState == "ok"){
+                        alert("检测到人脸.");
+                    }else{
+                        alert("未检测到人脸.");
+                    }
+                }else if(data.requestType=="detectSecond"){
+                    if(data.resultState == "ok"){
+                        alert("检测到人脸.");
+                    }else{
+                        alert("未检测到人脸.");
+                    }
+                }else if(data.requestType=="compareFace") {
+                    if(data.resultState == "ok"){
+                        alert("比对结果:"+ data.resultValue);
+                    }else{
+                        alert("未完成比对.");
+                    }
+                }
+            };
+            var doSend = function (base_1,base_2) {
+                if(base_1!=undefined && base_2!=undefined){
+                    var data={
+                        requestType: 'askFace',
+                        recognitionType: 'inTwo',
+                        imgType: 'data',
+                        pic1Data: base_1,
+                        pic2Data: base_2
+                    };
+                    var dataStr=JSON.stringify(data);
+                    websocket.send(dataStr);
+                }else if(base_1==undefined && base_2!=undefined){
+                    var data={
+                        requestType: 'askFace',
+                        recognitionType: 'inSecond',
+                        imgType: 'data',
+                        pic2Data: base_2
+                    };
+                    var dataStr=JSON.stringify(data);
+//                    websocket.send(dataStr);
+                }else if(base_1!=undefined && base_2==undefined){
+                    var data={
+                        requestType: 'askFace',
+                        recognitionType: 'inFirst',
+                        imgType: 'data',
+                        pic1Data: base_1
+                    };
+                    var dataStr=JSON.stringify(data);
+//                    websocket.send(dataStr);
+                }
+            };
+
+            document.getElementById('input1').onchange = function (e) {
+                console.info(e.target.files[0]);//图片文件
+                var reader = new FileReader();
+                reader.onload = (function (file) {
+                    return function (e) {
+                        render1(this.result,function () {
+                            doSend(base64_1,undefined);
+                        });
+                    };
+                })(e.target.files[0]);
+                reader.readAsDataURL(e.target.files[0]);
+            };
+            document.getElementById('button1').onclick = function () {
+                document.getElementById('input1').click();
+            };
+
+            document.getElementById('input2').onchange = function (e) {
+                console.info(e.target.files[0]);//图片文件
+                var reader = new FileReader();
+                reader.onload = (function (file) {
+                    return function (e) {
+                        render2(this.result,function () {
+                            doSend(undefined,base64_2);
+                        });
+                    };
+                })(e.target.files[0]);
+                reader.readAsDataURL(e.target.files[0]);
+            };
+            document.getElementById('button2').onclick = function () {
+                document.getElementById('input2').click();
+            };
+            document.getElementById('submit_button').onclick = function () {
+                doSend(base64_1,base64_2);
+//                doSend("aaa","bbb");
+            };
+        };
+    </script>
+</head>
+<body>
+<div class='content has-header'>
+    <div id='img_div1' class='item item-body'>
+        <!--<img id='img1' class='full-image' src='src/face1.gif' style='visibility: hidden'>-->
+        <canvas id='canvas1' class='full-image'></canvas>
+        <button id='button1' class='button button-dark icon-left ion-images'>人像选择</button>
+        <input id='input1' type='file' capture="camera" accept='.gif,.jpg,.jpeg,.png' style='visibility: hidden'>
+        <canvas id='mask1' class='full-image' style='visibility: hidden'></canvas>
+    </div>
+    <div id='img_div2' class='item item-body'>
+        <!--<img id='img2' class='full-image' src='src/face2.gif' style='visibility: hidden'>-->
+        <canvas id='canvas2' class='full-image'></canvas>
+        <button id='button2' class='button button-dark icon-left ion-images'>人像选择</button>
+        <input id='input2' type='file'  capture="camera"  accept='.gif,.jpg,.jpeg,.png' style='visibility: hidden'>
+        <canvas id='mask2' class='full-image' style='visibility: hidden'></canvas>
+    </div>
+    <div id='submit_div' class='item item-body'>
+        <button id='submit_button' class='button button-dark ion-ios-search-strong'>提交</button>
+    </div>
+</div>
+</body>
+</html>
