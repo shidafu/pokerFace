@@ -163,6 +163,7 @@ std::string processWork(std::string inputstr)
 		tmpstr = root.get("recognitionType", "invalid").asString();
 		if (tmpstr == "inTwo")
 		{
+			Jsvalue["requestType"] = "replyFace";
 			std::string pic1str = root.get("pic1Data", "").asString();
 			std::string pic2str = root.get("pic2Data", "").asString();
 			tmpstr = root.get("imgType", "invalid").asString();
@@ -280,6 +281,7 @@ std::string processWork(std::string inputstr)
 		}
 		else if (tmpstr == "inFirst")
 		{
+			Jsvalue["requestType"] = "replyFirst";
 			std::string pic1str = root.get("pic1Data", "").asString();
 			tmpstr = root.get("imgType", "invalid").asString();
 			std::cout << "请求第一张图片:" << pic1str.length()<< std::endl;
@@ -343,15 +345,13 @@ std::string processWork(std::string inputstr)
 					double secs = (t1 - t0) / cv::getTickFrequency();
 					std::cout << "Detect: " << face_info1.size() << " face,take " << secs << " seconds." << std::endl;
 
-					int resoult1[4];
 					if (face_info1.size() > 0)
 					{
-						resoult1[0] = face_info1.at(0).bbox.x;
-						resoult1[1] = face_info1.at(0).bbox.y;
-						resoult1[2] = face_info1.at(0).bbox.width;
-						resoult1[3] = face_info1.at(0).bbox.height;
 						Jsvalue["resultState"] = "ok";
-						Jsvalue["resultValue"] = resoult1;
+						Jsvalue["resultValue_x"] = face_info1.at(0).bbox.x;
+						Jsvalue["resultValue_y"] = face_info1.at(0).bbox.y;
+						Jsvalue["resultValue_w"] = face_info1.at(0).bbox.width;
+						Jsvalue["resultValue_h"] = face_info1.at(0).bbox.height;
 					}
 					else
 					{
@@ -371,6 +371,7 @@ std::string processWork(std::string inputstr)
 
 		else if (tmpstr == "inSecond")
 		{
+			Jsvalue["requestType"] = "replySecond";
 			std::string pic2str = root.get("pic2Data", "").asString();
 			tmpstr = root.get("imgType", "invalid").asString();
 			std::cout << "请求第二张图片:" << pic2str.length() << std::endl;
@@ -434,15 +435,13 @@ std::string processWork(std::string inputstr)
 					double secs = (t1 - t0) / cv::getTickFrequency();
 					std::cout << "Detect: " << face_info2.size() << " face,take " << secs << " seconds." << std::endl;
 
-					int resoult2[4];
 					if (face_info2.size() > 0)
 					{
-						resoult2[0] = face_info2.at(0).bbox.x;
-						resoult2[1] = face_info2.at(0).bbox.y;
-						resoult2[2] = face_info2.at(0).bbox.width;
-						resoult2[3] = face_info2.at(0).bbox.height;
 						Jsvalue["resultState"] = "ok";
-						Jsvalue["resultValue"] = resoult2;
+						Jsvalue["resultValue_x"] = face_info2.at(0).bbox.x;
+						Jsvalue["resultValue_y"] = face_info2.at(0).bbox.y;
+						Jsvalue["resultValue_w"] = face_info2.at(0).bbox.width;
+						Jsvalue["resultValue_h"] = face_info2.at(0).bbox.height;
 					}
 					else
 					{
