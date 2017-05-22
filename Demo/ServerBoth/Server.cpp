@@ -21,9 +21,9 @@
 #include <string>
 //#include "opencv2/imgproc/imgproc.hpp"
 //#include "opencv2/highgui/highgui.hpp"
-#include <boost/timer.hpp>
-#include <boost/thread.hpp>
-#include <boost/chrono.hpp>
+//#include <boost/timer.hpp>
+//#include <boost/thread.hpp>
+//#include <boost/chrono.hpp>
 
 #include <thread>
 
