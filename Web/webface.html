@@ -6,28 +6,38 @@
     <style>
         #img_div1 {
             width: 50%;
-            height: 50%;
+            height: 60%;
             float: left;
             padding: 0;
         }
 
         #img_div2 {
             width: 50%;
-            height: 50%;
+            height: 60%;
             float: right;
             padding: 0;
         }
 
-        #mask1,#mask2 {
+        #mask1{
             z-index: 100;
             position: absolute;
             top: 0;
             left: 0;
         }
 
-        #button1,#button2 {
-            position: relative;
-            float: bottom;
+        #mask2 {
+            z-index: 100;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #button1{
+            width: 100%;
+            max-height: 15%;
+        }
+
+        #button2 {
             width: 100%;
             max-height: 15%;
         }
@@ -293,7 +303,6 @@
             };
             document.getElementById('submit_button').onclick = function () {
                 doSend(base64_1,base64_2);
-//                doSend("aaa","bbb");
             };
         };
     </script>
@@ -303,18 +312,21 @@
     <div id='img_div1' class='item item-body'>
         <!--<img id='img1' class='full-image' src='src/face1.gif' style='visibility: hidden'>-->
         <canvas id='canvas1' class='full-image' ></canvas>
-        <button id='button1' class='button button-dark icon-left ion-images'>人像选择</button>
-        <input id='input1' type='file' capture="camera" accept='.gif,.jpg,.jpeg,.png' style='visibility: hidden'>
+        <button id='button1' class='button button-dark ion-images'>人像选择</button>
+        <input id='input1' type='file' accept='.gif,.jpg,.jpeg,.png' style='visibility: hidden'>
         <canvas id='mask1'></canvas>
     </div>
     <div id='img_div2' class='item item-body'>
         <!--<img id='img2' class='full-image' src='src/face2.gif' style='visibility: hidden'>-->
         <canvas id='canvas2' class='full-image'></canvas>
-        <button id='button2' class='button button-dark icon-left ion-images'>人像选择</button>
-        <input id='input2' type='file'  capture="camera"  accept='.gif,.jpg,.jpeg,.png' style='visibility: hidden'>
+        <button id='button2' class='button button-dark ion-images'>人像选择</button>
+        <input id='input2' type='file'  accept='.gif,.jpg,.jpeg,.png' style='visibility: hidden'>
         <canvas id='mask2'></canvas></div>
     <div id='submit_div' class='item item-body'>
         <button id='submit_button' class='button button-dark ion-ios-search-strong'>提交</button>
+    </div>
+    <div id='footer_div' class='item item-body'>
+        <p style='float: right'>移动端用户请在浏览器(google/百度)中打开，并启动浏览器访问摄像头/存储权限。</p>
     </div>
 </div>
 </body>

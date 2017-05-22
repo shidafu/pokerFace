@@ -166,6 +166,7 @@ std::string processWork(std::string inputstr)
 			std::string pic1str = root.get("pic1Data", "").asString();
 			std::string pic2str = root.get("pic2Data", "").asString();
 			tmpstr = root.get("imgType", "invalid").asString();
+			std::cout << "请求两张图片,1:" << pic1str .length()<< ",2:" << pic2str.length() << std::endl;
 
 			cv::Mat img1;
 			cv::Mat img2;
@@ -255,12 +256,15 @@ std::string processWork(std::string inputstr)
 						t1 = cv::getTickCount();
 						secs = (t1 - t0) / cv::getTickFrequency();
 						std::cout << "Compare: similar=" << r << " ,take " << secs << " seconds." << std::endl;
+						Jsvalue["resultState"] = "ok";
+						Jsvalue["resultValue"] = r;
+					}
+					else
+					{
+						Jsvalue["resultState"] = "false";
 					}
 
 					mu_tk.unlock();
-					//算法部分结束
-					Jsvalue["resultState"] = "ok";
-					Jsvalue["resultValue"] = r;
 				}
 				catch (...)
 				{
@@ -278,6 +282,7 @@ std::string processWork(std::string inputstr)
 		{
 			std::string pic1str = root.get("pic1Data", "").asString();
 			tmpstr = root.get("imgType", "invalid").asString();
+			std::cout << "请求第一张图片:" << pic1str.length()<< std::endl;
 
 			cv::Mat img1;
 			if (tmpstr == "address")
@@ -345,17 +350,18 @@ std::string processWork(std::string inputstr)
 						resoult1[1] = face_info1.at(0).bbox.y;
 						resoult1[2] = face_info1.at(0).bbox.width;
 						resoult1[3] = face_info1.at(0).bbox.height;
+						Jsvalue["resultState"] = "ok";
+						Jsvalue["resultValue"] = resoult1;
+					}
+					else
+					{
+						Jsvalue["resultState"] = "error";
 					}
 					mu_tk.unlock(); //上锁
-
-					//算法部分结束
-					Jsvalue["resultState"] = "ok";
-					Jsvalue["resultValue"] = resoult1;
-					
 				}
 				catch (...)
 				{
-					mu_tk.lock(); //解锁锁
+					mu_tk.unlock(); //解锁锁
 					Jsvalue["resultState"] = "error";
 				}
 
@@ -367,6 +373,7 @@ std::string processWork(std::string inputstr)
 		{
 			std::string pic2str = root.get("pic2Data", "").asString();
 			tmpstr = root.get("imgType", "invalid").asString();
+			std::cout << "请求第二张图片:" << pic2str.length() << std::endl;
 
 			cv::Mat img2;
 			if (tmpstr == "address")
@@ -434,15 +441,18 @@ std::string processWork(std::string inputstr)
 						resoult2[1] = face_info2.at(0).bbox.y;
 						resoult2[2] = face_info2.at(0).bbox.width;
 						resoult2[3] = face_info2.at(0).bbox.height;
+						Jsvalue["resultState"] = "ok";
+						Jsvalue["resultValue"] = resoult2;
 					}
-
-
-					//算法部分结束
-					Jsvalue["resultState"] = "ok";
-					Jsvalue["resultValue"] = resoult2;
+					else
+					{
+						Jsvalue["resultState"] = "error";
+					}
+					mu_tk.unlock(); //上锁
 				}
 				catch (...)
 				{
+					mu_tk.unlock(); //解锁锁
 					Jsvalue["resultState"] = "error";
 				}
 
