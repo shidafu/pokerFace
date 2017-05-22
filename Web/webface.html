@@ -52,6 +52,7 @@
     <!--<script src='https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js'></script>-->
     <script src='js//alert_busy.js'></script>
     <script type='text/javascript'>
+        var websocket;
         window.onload = function () {
 //            var test=JSON.parse("{\"arr\":[[1,2,3],[1,2,3]]}");
             var img_div1 =document.getElementById("img_div1");
@@ -87,6 +88,7 @@
             render1('src/face1.gif');
             var corpface1 = function (left,top,width,height) {
                 mctx1.strokeStyle="#FF0000";
+                mctx1.lineWidth=3;
                 mctx1.strokeRect(left,top,width,height);
             };
             var clearrect1 = function (left,top,width,height) {
@@ -97,7 +99,7 @@
             var canvas2 =document.getElementById("canvas2");
             var ctx2 = canvas2.getContext('2d');
             var mask2 =document.getElementById("mask2");
-            var mctx2 = mask1.getContext('2d');
+            var mctx2 = mask2.getContext('2d');
             mctx2.fillStyle = 'rgba(255, 255, 255, 0)';
             var img2 = new Image();//document.getElementById("img1");
             var base64_2 = undefined;
@@ -122,8 +124,9 @@
                 img2.src = imgsrc2;
             };
             render2('src/face2.gif');
-            var corpface2 = function (left,top,right,bottom) {
+            var corpface2 = function (left,top,width,height) {
                 mctx2.strokeStyle="#FF0000";
+                mctx2.lineWidth=3;
                 mctx2.strokeRect(left,top,width,height);
             };
             var clearrect2 = function (left,top,width,height) {
@@ -165,10 +168,8 @@
                     }
                 }else if(data.requestType=="replyFirst"){
                     if(data.resultState == "ok"){
-                        for(var i=0;i<data.resultValue.length;i++){
-                            corpface1(data.resultValue[i][0],data.resultValue[i][1],
-                                data.resultValue[i][2],data.resultValue[i][3]);
-                        }
+                        corpface1(data.resultValue_x,data.resultValue_y,
+                            data.resultValue_w,data.resultValue_h);
                     }else{
                         var contentStr=
                             "<div class='card'>"+
@@ -184,10 +185,8 @@
                     }
                 }else if(data.requestType=="replySecond"){
                     if(data.resultState == "ok"){
-                        for(var i=0;i<data.resultValue.length;i++){
-                            corpface2(data.resultValue[i][0],data.resultValue[i][1],
-                                data.resultValue[i][2],data.resultValue[i][3]);
-                        }
+                        corpface2(data.resultValue_x,data.resultValue_y,
+                            data.resultValue_w,data.resultValue_h);
                     }else{
                         var contentStr=
                             "<div class='card'>"+
@@ -236,37 +235,39 @@
                     requestType: 'askSocket'
                 };
                 var dataStr=JSON.stringify(data);
-                websocket.send(dataStr);
+                //websocket.send(dataStr);
             };
             var doSend = function (base_1,base_2) {
-                if(base_1!=undefined && base_2!=undefined){
-                    var data={
-                        requestType: 'askFace',
-                        recognitionType: 'inTwo',
-                        imgType: 'data',
-                        pic1Data: base_1,
-                        pic2Data: base_2
-                    };
-                    var dataStr=JSON.stringify(data);
-                    websocket.send(dataStr);
-                }else if(base_1==undefined && base_2!=undefined){
-                    var data={
-                        requestType: 'askFace',
-                        recognitionType: 'inSecond',
-                        imgType: 'data',
-                        pic2Data: base_2
-                    };
-                    var dataStr=JSON.stringify(data);
-//                    websocket.send(dataStr);
-                }else if(base_1!=undefined && base_2==undefined){
-                    var data={
-                        requestType: 'askFace',
-                        recognitionType: 'inFirst',
-                        imgType: 'data',
-                        pic1Data: base_1
-                    };
-                    var dataStr=JSON.stringify(data);
-//                    websocket.send(dataStr);
+                 {
+                    if (base_1 != undefined && base_2 != undefined) {
+                        var data = {
+                            requestType: 'askFace',
+                            recognitionType: 'inTwo',
+                            imgType: 'data',
+                            pic1Data: base_1,
+                            pic2Data: base_2
+                        };
+                        var dataStr = JSON.stringify(data);
+                        websocket.send(dataStr);
+                    } else if (base_1 == undefined && base_2 != undefined) {
+                        var data = {
+                            requestType: 'askFace',
+                            recognitionType: 'inSecond',
+                            imgType: 'data',
+                            pic2Data: base_2
+                        };
+                        var dataStr = JSON.stringify(data);
+                        websocket.send(dataStr);
+                    } else if (base_1 != undefined && base_2 == undefined) {
+                        var data = {
+                            requestType: 'askFace',
+                            recognitionType: 'inFirst',
+                            imgType: 'data',
+                            pic1Data: base_1
+                        };
+                        var dataStr = JSON.stringify(data);
+                        websocket.send(dataStr);
+                    }
                 }
             };
 
@@ -305,6 +306,9 @@
                 doSend(base64_1,base64_2);
             };
         };
+        window.onunload =function () {
+            websocket.close();
+        }
     </script>
 </head>
 <body>
