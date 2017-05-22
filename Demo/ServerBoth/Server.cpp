@@ -143,7 +143,7 @@ std::string processWork(std::string inputstr)
 		ssm >> root;
 		std::cout << "get a json data!" << std::endl;
 		//std::cout << root << std::endl;
-		requestTypeStr = root.get("requestType", "").asString();
+		requestTypeStr = root.get("requestType", "invalid").asString();
 	}
 	catch (...)
 	{
@@ -208,7 +208,7 @@ std::string processWork(std::string inputstr)
 
 				try
 				{
-					
+
 					float r = 0.01;
 					//算法部分
 					mu_tk.lock();
@@ -272,12 +272,187 @@ std::string processWork(std::string inputstr)
 
 			//algorithm
 
-			std::stringstream ssm;
-			ssm << Jsvalue;
-			std::string buffstr = ssm.str();
-			return buffstr;
+
+		}
+		else if (tmpstr == "inFirst")
+		{
+			std::string pic1str = root.get("pic1Data", "").asString();
+			tmpstr = root.get("imgType", "invalid").asString();
+
+			cv::Mat img1;
+			if (tmpstr == "address")
+			{
+				img1 = readImgFile(pic1str);
+			}
+			else if (tmpstr == "data")
+			{
+				img1 = base64toMat(pic1str);
+			}
+			if (img1.empty())
+			{
+				Jsvalue["resultState"] = "error";
+				std::cout << "请求第一张图片为空" << std::endl;
+			}
+			else
+			{
+				if (serverConfig.showImg)
+				{
+					cv::imshow("img1", img1);
+					cv::waitKey(1);
+				}
+				if (serverConfig.writeImg)
+				{
+					try
+					{
+						cv::imwrite("img/img1", img1);
+					}
+					catch (...)
+					{
+						std::cout << "写入图片出错" << std::endl;
+					}
+
+				}
+
+				try
+				{
+					float r = 0.01;
+					//算法部分
+
+					std::cout << "进行算法运算" << std::endl;
+					mu_tk.lock(); //上锁
+					//Load images
+					seeta::ImageData img_data1(img1.cols, img1.rows, img1.channels());
+					img_data1.data = img1.data;
+					cv::Mat gray_img1;
+					cv::cvtColor(img1, gray_img1, CV_RGB2GRAY);
+					seeta::ImageData gray_img_data1(gray_img1.cols, gray_img1.rows, gray_img1.channels());
+					gray_img_data1.data = gray_img1.data;
+					std::cout << "Load image1 width: " << img1.cols << " ,height: " << img1.rows << std::endl;
+
+					// Detect face.
+					std::vector <seeta::FaceInfo> face_info1;
+					std::vector <tools::faceLandMark> face_marks1;
+					long t0 = cv::getTickCount();
+					bool isOK = face_detector.detect(gray_img_data1, face_info1, face_marks1);
+					long t1 = cv::getTickCount();
+					double secs = (t1 - t0) / cv::getTickFrequency();
+					std::cout << "Detect: " << face_info1.size() << " face,take " << secs << " seconds." << std::endl;
+
+					int resoult1[4];
+					if (face_info1.size() > 0)
+					{
+						resoult1[0] = face_info1.at(0).bbox.x;
+						resoult1[1] = face_info1.at(0).bbox.y;
+						resoult1[2] = face_info1.at(0).bbox.width;
+						resoult1[3] = face_info1.at(0).bbox.height;
+					}
+					mu_tk.unlock(); //上锁
+
+					//算法部分结束
+					Jsvalue["resultState"] = "ok";
+					Jsvalue["resultValue"] = resoult1;
+					
+				}
+				catch (...)
+				{
+					mu_tk.lock(); //解锁锁
+					Jsvalue["resultState"] = "error";
+				}
+
+			}
+
+		}
+
+		else if (tmpstr == "inSecond")
+		{
+			std::string pic2str = root.get("pic2Data", "").asString();
+			tmpstr = root.get("imgType", "invalid").asString();
+
+			cv::Mat img2;
+			if (tmpstr == "address")
+			{
+				img2 = readImgFile(pic2str);
+			}
+			else if (tmpstr == "data")
+			{
+				img2 = base64toMat(pic2str);
+			}
+			if (img2.empty())
+			{
+				Jsvalue["resultState"] = "error";
+				std::cout << "请求第二张图片为空" << std::endl;
+			}
+			else
+			{
+				if (serverConfig.showImg)
+				{
+					cv::imshow("img2", img2);
+					cv::waitKey(1);
+				}
+				if (serverConfig.writeImg)
+				{
+					try
+					{
+						cv::imwrite("img/img2", img2);
+					}
+					catch (...)
+					{
+						std::cout << "写入图片出错" << std::endl;
+					}
+
+				}
+
+				try
+				{
+					float r = 0.01;
+					//算法部分
+
+					std::cout << "进行算法运算" << std::endl;
+					mu_tk.unlock(); //上锁
+					//Load images
+					seeta::ImageData img_data2(img2.cols, img2.rows, img2.channels());
+					img_data2.data = img2.data;
+					cv::Mat gray_img2;
+					cv::cvtColor(img2, gray_img2, CV_RGB2GRAY);
+					seeta::ImageData gray_img_data2(gray_img2.cols, gray_img2.rows, gray_img2.channels());
+					gray_img_data2.data = gray_img2.data;
+					std::cout << "Load image2 width: " << img2.cols << " ,height: " << img2.rows << std::endl;
+
+					// Detect face.
+					std::vector <seeta::FaceInfo> face_info2;
+					std::vector <tools::faceLandMark> face_marks2;
+					long t0 = cv::getTickCount();
+					bool isOK = face_detector.detect(gray_img_data2, face_info2, face_marks2);
+					long t1 = cv::getTickCount();
+					double secs = (t1 - t0) / cv::getTickFrequency();
+					std::cout << "Detect: " << face_info2.size() << " face,take " << secs << " seconds." << std::endl;
+
+					int resoult2[4];
+					if (face_info2.size() > 0)
+					{
+						resoult2[0] = face_info2.at(0).bbox.x;
+						resoult2[1] = face_info2.at(0).bbox.y;
+						resoult2[2] = face_info2.at(0).bbox.width;
+						resoult2[3] = face_info2.at(0).bbox.height;
+					}
+
+
+					//算法部分结束
+					Jsvalue["resultState"] = "ok";
+					Jsvalue["resultValue"] = resoult2;
+				}
+				catch (...)
+				{
+					Jsvalue["resultState"] = "error";
+				}
+
+			}
 		}
 	}
+	ssm.str("");
+	ssm << Jsvalue;
+	std::string buffstr = ssm.str();
+	return buffstr;
 }
 
 
@@ -344,8 +519,8 @@ context_ptr on_tls_init(tls_mode mode, websocketpp::connection_hdl hdl) {
 			// Modern disables TLSv1
 			ctx->set_options(asio::ssl::context::default_workarounds |
 							asio::ssl::context::no_sslv2 |
-							asio::ssl::context::no_sslv3 |
-							asio::ssl::context::no_tlsv1 
+							asio::ssl::context::no_sslv3 
+
 																	 //asio::ssl::context::tlsv11 |
 																	 //asio::ssl::context::tlsv12 /*|
 																	 //asio::ssl::context::single_dh_use*/
@@ -354,8 +529,8 @@ context_ptr on_tls_init(tls_mode mode, websocketpp::connection_hdl hdl) {
 		else {
 			ctx->set_options(asio::ssl::context::default_workarounds |
 				asio::ssl::context::no_sslv2 |
-				asio::ssl::context::no_sslv3 |
-				asio::ssl::context::no_tlsv1
+				asio::ssl::context::no_sslv3 
+
 																	//asio::ssl::context::tlsv11 |
 																	//asio::ssl::context::tlsv12 /*|
 																	//asio::ssl::context::single_dh_use*/
