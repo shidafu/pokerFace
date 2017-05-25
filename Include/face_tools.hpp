@@ -15,6 +15,7 @@
 #include "common.h"
 #include "mformat.hpp"
 #include <cv.hpp>
+#include <iostream>
 namespace tools
 {
 #ifndef SIZE_SETTING

@@ -293,6 +293,9 @@ void CPokerFaceDlg::OnBnClickedCopBtn()
 			similar = face_detector.corp_compare(img_data1, img_data2, face_marks1.at(0).mark, face_marks2.at(0).mark);
 			t1 = cv::getTickCount();
 			secs = (t1 - t0) / cv::getTickFrequency();
+			similar -= 0.40;
+			similar /= 0.1;
+			similar = 1 / (1 + exp(-similar));
 			debugStr = tools::f_to_s(secs);
 			similarStr = tools::f_to_s(similar);
 			OutputDebugStringA(("Corp Compare take time = " + debugStr + ",similar=" + similarStr +"\n").c_str());
