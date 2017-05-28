@@ -40,14 +40,32 @@ typedef websocketpp::lib::shared_ptr<websocketpp::lib::asio::ssl::context> conte
 
 // "requestType" = "askFace"   
 // "recognitionType" = "inTwo"                "inFirst"          "inSecond"
-// "pic1Data" = ""
-// "pic2Data" = ""
+// "pic1Data" = ""                            "pic1Data"
+// "checkCode1" = -1                          "checkCode1"
+// "pic2Data" = ""                                               "pic2Data"
+// "checkCode2" = -1                                             "checkCode2"
 
 //replay
 // "requestType" = "replyFace"/"replyTwo"     "replyFirst"       "replySecond"
 // "sourceHDL" = "0000asdff234"
 // "resultState" = "ok"
-// "resultValue" = "0.56"                     [[left,right,width,height],...]
+// "resultValue" = "0.56"                     
+// "checkCode1" = -1                          "checkCode1"
+// "checkCode2" = -1                                             "checkCode2"
+//                                            "resultValue_x"    "resultValue_x"
+//                                            "resultValue_y"    "resultValue_y"
+//                                            "resultValue_w"    "resultValue_w"
+//                                            "resultValue_h"    "resultValue_h"
+//                                            "x"                "x"
+//                                            "y"                "y"
+//                                            "w"                "w"
+//                                            "h"                "h"
+//                                            "roll"             "roll"
+//                                            "pitch"            "pitch"
+//                                            "yaw"              "yaw"
+//                                            "score"            "score"
+//                                            "mean"             "mean"
+//                                            "std"              "std"
 
 
 struct serverCfg
@@ -168,6 +186,8 @@ std::string processWork(std::string inputstr)
 			std::string pic2str = root.get("pic2Data", "").asString();
 			tmpstr = root.get("imgType", "invalid").asString();
 			std::cout << "请求两张图片,1:" << pic1str .length()<< ",2:" << pic2str.length() << std::endl;
+			long checkCode1 = root.get("checkCode1", -1).asInt64();
+			long checkCode2 = root.get("checkCode2", -1).asInt64();
 
 			cv::Mat img1;
 			cv::Mat img2;
@@ -224,6 +244,11 @@ std::string processWork(std::string inputstr)
 					seeta::ImageData gray_img_data1(gray_img1.cols, gray_img1.rows, gray_img1.channels());
 					gray_img_data1.data = gray_img1.data;
 					std::cout << "Load image1 width: " << img1.cols << " ,height: " << img1.rows << std::endl;
+					//cv::Mat tmp_m, tmp_sd;
+					//double m1 = 0, sd1 = 0;//亮度对比度
+					//cv::meanStdDev(gray_img1, tmp_m, tmp_sd);
+					//m1 = tmp_m.at<double>(0, 0) / 256;
+					//sd1 = tmp_sd.at<double>(0, 0) / 256;
 
 					seeta::ImageData img_data2(img2.cols, img2.rows, img2.channels());
 					img_data2.data = img2.data;
@@ -232,6 +257,10 @@ std::string processWork(std::string inputstr)
 					seeta::ImageData gray_img_data2(gray_img2.cols, gray_img2.rows, gray_img2.channels());
 					gray_img_data2.data = gray_img2.data;
 					std::cout << "Load image2 width: " << img2.cols << " ,height: " << img2.rows << std::endl;
+					//double m2 = 0, sd2 = 0;//亮度对比度
+					//cv::meanStdDev(gray_img2, tmp_m, tmp_sd);
+					//m2 = tmp_m.at<double>(0, 0) / 256;
+					//sd2 = tmp_sd.at<double>(0, 0) / 256;
 
 					// Detect face.
 					std::vector <seeta::FaceInfo> face_info1;
@@ -259,10 +288,15 @@ std::string processWork(std::string inputstr)
 						std::cout << "Compare: similar=" << r << " ,take " << secs << " seconds." << std::endl;
 						Jsvalue["resultState"] = "ok";
 						Jsvalue["resultValue"] = r;
+						Jsvalue["checkCode1"] = checkCode1;
+						Jsvalue["checkCode2"] = checkCode2;
 					}
 					else
 					{
 						Jsvalue["resultState"] = "false";
+						Jsvalue["resultValue"] = -1;
+						Jsvalue["checkCode1"] = checkCode1;
+						Jsvalue["checkCode2"] = checkCode2;
 					}
 
 					mu_tk.unlock();
@@ -279,12 +313,14 @@ std::string processWork(std::string inputstr)
 
 
 		}
+
 		else if (tmpstr == "inFirst")
 		{
 			Jsvalue["requestType"] = "replyFirst";
 			std::string pic1str = root.get("pic1Data", "").asString();
 			tmpstr = root.get("imgType", "invalid").asString();
-			std::cout << "请求第一张图片:" << pic1str.length()<< std::endl;
+			std::cout << "请求第一张图片:" << pic1str.length() << std::endl;
+			long checkCode1 = root.get("checkCode1", -1).asInt64();
 
 			cv::Mat img1;
 			if (tmpstr == "address")
@@ -332,6 +368,13 @@ std::string processWork(std::string inputstr)
 					img_data1.data = img1.data;
 					cv::Mat gray_img1;
 					cv::cvtColor(img1, gray_img1, CV_RGB2GRAY);
+
+					cv::Mat tmp_m, tmp_sd;
+					double m = 0, sd = 0;//亮度对比度
+					cv::meanStdDev(gray_img1, tmp_m, tmp_sd);
+					m = tmp_m.at<double>(0, 0) / 256;
+					sd = tmp_sd.at<double>(0, 0) / 256;
+
 					seeta::ImageData gray_img_data1(gray_img1.cols, gray_img1.rows, gray_img1.channels());
 					gray_img_data1.data = gray_img1.data;
 					std::cout << "Load image1 width: " << img1.cols << " ,height: " << img1.rows << std::endl;
@@ -352,10 +395,25 @@ std::string processWork(std::string inputstr)
 						Jsvalue["resultValue_y"] = face_info1.at(0).bbox.y;
 						Jsvalue["resultValue_w"] = face_info1.at(0).bbox.width;
 						Jsvalue["resultValue_h"] = face_info1.at(0).bbox.height;
+						Jsvalue["x"] = face_info1.at(0).bbox.x;
+						Jsvalue["y"] = face_info1.at(0).bbox.y;
+						Jsvalue["w"] = face_info1.at(0).bbox.width;
+						Jsvalue["h"] = face_info1.at(0).bbox.height;
+						Jsvalue["roll"] = face_info1.at(0).roll;
+						Jsvalue["pitch"] = face_info1.at(0).pitch;
+						Jsvalue["yaw"] = face_info1.at(0).yaw;
+						Jsvalue["score"] = face_info1.at(0).score;
+						Jsvalue["mean"] = m;
+						Jsvalue["std"] = sd;
+						Jsvalue["checkCode1"] = checkCode1;
 					}
 					else
 					{
 						Jsvalue["resultState"] = "error";
+						Jsvalue["score"] = -1;
+						Jsvalue["mean"] = m;
+						Jsvalue["std"] = sd;
+						Jsvalue["checkCode1"] = checkCode1;
 					}
 					mu_tk.unlock(); //上锁
 				}
@@ -375,6 +433,7 @@ std::string processWork(std::string inputstr)
 			std::string pic2str = root.get("pic2Data", "").asString();
 			tmpstr = root.get("imgType", "invalid").asString();
 			std::cout << "请求第二张图片:" << pic2str.length() << std::endl;
+			long checkCode2 = root.get("checkCode2", -1).asInt64();
 
 			cv::Mat img2;
 			if (tmpstr == "address")
@@ -426,6 +485,12 @@ std::string processWork(std::string inputstr)
 					gray_img_data2.data = gray_img2.data;
 					std::cout << "Load image2 width: " << img2.cols << " ,height: " << img2.rows << std::endl;
 
+					cv::Mat tmp_m, tmp_sd;
+					double m = 0, sd = 0;//亮度对比度
+					cv::meanStdDev(gray_img2, tmp_m, tmp_sd);
+					m = tmp_m.at<double>(0, 0) / 256;
+					sd = tmp_sd.at<double>(0, 0) / 256;
+
 					// Detect face.
 					std::vector <seeta::FaceInfo> face_info2;
 					std::vector <tools::faceLandMark> face_marks2;
@@ -442,10 +507,25 @@ std::string processWork(std::string inputstr)
 						Jsvalue["resultValue_y"] = face_info2.at(0).bbox.y;
 						Jsvalue["resultValue_w"] = face_info2.at(0).bbox.width;
 						Jsvalue["resultValue_h"] = face_info2.at(0).bbox.height;
+						Jsvalue["x"] = face_info2.at(0).bbox.x;
+						Jsvalue["y"] = face_info2.at(0).bbox.y;
+						Jsvalue["w"] = face_info2.at(0).bbox.width;
+						Jsvalue["h"] = face_info2.at(0).bbox.height;
+						Jsvalue["roll"] = face_info2.at(0).roll;
+						Jsvalue["pitch"] = face_info2.at(0).pitch;
+						Jsvalue["yaw"] = face_info2.at(0).yaw;
+						Jsvalue["score"] = face_info2.at(0).score;
+						Jsvalue["mean"] = m;
+						Jsvalue["std"] = sd;
+						Jsvalue["checkCode2"] = checkCode2;
 					}
 					else
 					{
 						Jsvalue["resultState"] = "error";
+						Jsvalue["score"] = -1;
+						Jsvalue["mean"] = m;
+						Jsvalue["std"] = sd;
+						Jsvalue["checkCode2"] = checkCode2;
 					}
 					mu_tk.unlock(); //上锁
 				}
