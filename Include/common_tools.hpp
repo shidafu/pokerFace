@@ -41,6 +41,41 @@ namespace tools
 	}
 
 	/**
+	@fn  path_to_jsonpath
+	@brief path to jsonpath.
+	@param[in] jsonpath: full path.
+	@param[out] path: dir path, delete filename and ext, include '\' at last.
+	@param[in] pathMaxLen: max length of path.
+	*/
+	void path_to_jsonpath(const char* path, char* jsonpath,  int pathMaxLen)
+	{
+		int fullLen = strlen(path);
+		int pathLen = fullLen;
+		int j = 0;
+		for (int i=0; i<fullLen; i++)
+		{
+			if (path[i] == '\\' || path[i] == '/')
+			{
+				jsonpath[j] = '\\';
+				j++;
+				if (j >= pathMaxLen) break;
+				jsonpath[j] = '\\';
+				j++;
+				if (j >= pathMaxLen) break;
+			}
+			else
+			{
+				jsonpath[j] = path[i];
+				j++;
+				if (j >= pathMaxLen) break;
+			}
+		}
+		if (j >= pathMaxLen) return;
+		jsonpath[j] = 0;
+		return;
+	}
+
+	/**
 	@fn  full_to_path
 	@brief full path to path.
 	@param[in] fullstr: full path.
@@ -102,47 +137,22 @@ namespace tools
 	*/
 	int dir_files(std::string dir, std::string ext, std::vector<std::string>& files)
 	{
-//#ifdef _WINDOWS
-//		files.clear();
-//		_WIN32_FIND_DATAA FindFileData;
-//		HANDLE hFind;
-//		hFind = ::FindFirstFileA((dir + "*.*").c_str(), (LPWIN32_FIND_DATAA)&FindFileData);
-//		if (hFind != INVALID_HANDLE_VALUE)
-//		{
-//			do
-//			{
-//				if ((FindFileData.dwFileAttributes &FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
-//				{
-//					std::string name = FindFileData.cFileName;
-//					int iLength = name.length();
-//					if (iLength > 1)
-//					{
-//						int lastLen = 0;
-//						char* pEndChar = (char*)FindFileData.cFileName + iLength;
-//						while (*pEndChar != L'.')
-//						{
-//							pEndChar--;
-//							lastLen++;
-//						}
-//						pEndChar++;
-//						supr(pEndChar, lastLen);
-//						if (wcscmp(pEndChar, strUppExt) == 0)
-//						{
-//							Set.iItemNum++;
-//							if (Set.iItemNum >= Set.MAX_ITEM_NUM)
-//							{
-//								break;
-//							}
-//						}
-//					}
-//				}
-//			} while (FindNextFile(hFind, &FindFileData));
-//			FindClose(hFind);
-//		}
-//		return files.size();
-//#else
-		return 0;
-//#endif
+		files.clear();
+		dir.append(ext);
+		intptr_t hFile;
+		_finddata_t fileinfo;
+		if ((hFile = _findfirst(dir.c_str(), &fileinfo)) != -1)
+		{
+			do
+			{
+				if (!(fileinfo.attrib & _A_SUBDIR))//ур╣╫нд╪Ч  
+				{
+					files.push_back(fileinfo.name);
+				}
+			} while (_findnext(hFile, &fileinfo) == 0);
+			_findclose(hFile);
+		}
+		return files.size();
 	}
 }
 #endif

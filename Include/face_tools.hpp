@@ -14,6 +14,7 @@
 #include "face_identification.h"
 #include "common.h"
 #include "mformat.hpp"
+#include "mlog.hpp"
 #include <cv.hpp>
 #include <iostream>
 namespace tools
@@ -34,14 +35,6 @@ namespace tools
 	sizeSetting accept_size_9X15 = { 200,120,30 };
 	sizeSetting accept_size_16X9 = { 180,270,40 };
 	sizeSetting accept_size_9X16 = { 270,180,40 };
-	//sizeSetting accept_size_3X2 = { 80,120,20 };
-	//sizeSetting accept_size_2X3 = { 120,80,20 };
-	//sizeSetting accept_size_4X3 = { 120,160,30 };
-	//sizeSetting accept_size_3X4 = { 160,120,30 };
-	//sizeSetting accept_size_15X9 = { 120,200,30 };
-	//sizeSetting accept_size_9X15 = { 200,120,30 };
-	//sizeSetting accept_size_16X9 = { 180,270,40 };
-	//sizeSetting accept_size_9X16 = { 270,180,40 };
 #endif
 
 	struct faceLandMark
@@ -51,9 +44,71 @@ namespace tools
 		{
 			for (int i=0;i<5;i++)
 			{
-				mark[i].x = 0;
-				mark[i].y = 0;
+				mark[i].x = -1;
+				mark[i].y = -1;
 			}
+		}
+		faceLandMark& operator =(const faceLandMark& fLandMark)
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				mark[i].x = fLandMark.mark[i].x;
+				mark[i].y = fLandMark.mark[i].y;
+			}
+			return *this;
+		}
+	};
+
+	struct faceInfoEx
+	{
+		bool exist;
+		seeta::FaceInfo info;
+		double mean;
+		double std;
+		faceInfoEx()
+		{
+			exist = false;
+			info.bbox.x = -1;
+			info.bbox.y = -1;
+			info.bbox.width = -1;
+			info.bbox.height = -1;
+			info.roll = 0;
+			info.yaw = 0;
+			info.pitch = 0;
+			info.score = -1;
+			mean = 0.0;
+			std = 0.0;
+		}
+		faceInfoEx& operator =(const faceInfoEx& fInfo)
+		{
+			exist = fInfo.exist;
+			info.bbox.x = fInfo.info.bbox.x;
+			info.bbox.y = fInfo.info.bbox.y;
+			info.bbox.width = fInfo.info.bbox.width;
+			info.bbox.height = fInfo.info.bbox.height;
+			info.roll = fInfo.info.roll;
+			info.yaw = fInfo.info.yaw;
+			info.pitch = fInfo.info.pitch;
+			info.score = fInfo.info.score;
+			mean = fInfo.mean;
+			std = fInfo.std;
+			return *this;
+		}
+		faceInfoEx& operator =(const seeta::FaceInfo& fInfo)
+		{
+			exist = true;
+			for (int i = 0; i < 5; i++)
+			info.bbox.x = fInfo.bbox.x;
+			info.bbox.y = fInfo.bbox.y;
+			info.bbox.width = fInfo.bbox.width;
+			info.bbox.height = fInfo.bbox.height;
+			info.roll = fInfo.roll;
+			info.yaw = fInfo.yaw;
+			info.pitch = fInfo.pitch;
+			info.score = fInfo.score;
+			mean = 0;
+			std = 0;
+			return *this;
 		}
 	};
 
@@ -75,8 +130,8 @@ namespace tools
 
 		faceDetector()
 		{
-			seeta::FaceDetection*  p_face_detector=0;
-			seeta::FaceAlignment* p_point_detector=0;
+			p_face_detector=0;
+			p_point_detector=0;
 			accept_size.img_width = accept_size_3X2.img_width;
 			accept_size.img_height = accept_size_3X2.img_height;
 			accept_size.target_size = accept_size_3X2.target_size;
@@ -125,12 +180,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
-				std::cout << "faceDetector::initial failed\n";
+				MLOG<< "faceDetector::initial failed\n";
 				return false;
 			}
 			catch (...)
 			{
-				std::cout << "faceDetector::initial failed\n";
+				MLOG<< "faceDetector::initial failed\n";
 				return false;
 			}
 		}
@@ -141,7 +196,7 @@ namespace tools
 		{
 			if (p_face_detector == 0 || p_point_detector == 0)
 			{
-				std::cout << "faceDetector::detect failed\n";
+				MLOG<< "faceDetector::detect failed\n";
 				return -1;
 			}
 			try
@@ -157,12 +212,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
-				std::cout << "faceDetector::detect failed\n";
+				MLOG<< "faceDetector::detect failed\n";
 				return -1;
 			}
 			catch (...)
 			{
-				std::cout << "faceDetector::initial failed\n";
+				MLOG<< "faceDetector::initial failed\n";
 				return -1;
 			}
 		}
@@ -173,7 +228,7 @@ namespace tools
 		{
 			if (p_face_detector == 0 || p_point_detector == 0)
 			{
-				std::cout << "faceDetector::detect failed\n";
+				MLOG<< "faceDetector::detect failed\n";
 				return -1;
 			}
 			try
@@ -191,12 +246,111 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
-				std::cout << "faceDetector::detect failed\n";
+				MLOG<< "faceDetector::detect failed\n";
 				return -1;
 			}
 			catch (...)
 			{
-				std::cout << "faceDetector::detect failed\n";
+				MLOG<< "faceDetector::detect failed\n";
+				return -1;
+			}
+		}
+
+		int detect(cv::Mat& img,
+			tools::faceInfoEx & face_infoex,
+			tools::faceLandMark & face_mark)
+		{
+			if (p_face_detector == 0 || p_point_detector == 0)
+			{
+				MLOG << "faceDetector::detect failed\n";
+				return -1;
+			}
+			try
+			{
+				cv::Mat gray_img;
+				cv::cvtColor(img, gray_img, CV_RGB2GRAY);
+				seeta::ImageData gray_img_data(
+					gray_img.cols, gray_img.rows, gray_img.channels());
+				gray_img_data.data = gray_img.data;
+
+				cv::Mat tmp_m, tmp_sd;
+				double m = 0, sd = 0;
+				cv::meanStdDev(gray_img, tmp_m, tmp_sd);
+				m = tmp_m.at<double>(0, 0) / 256;
+				sd = tmp_sd.at<double>(0, 0) / 256;
+
+				face_infoex.exist = false;
+
+				std::vector <seeta::FaceInfo> face_infos;
+				face_infos = p_face_detector->Detect(gray_img_data);
+				if (face_infos.size() >= 1)
+				{
+					face_infoex.exist = true;
+					face_infoex = face_infos.at(0);
+					p_point_detector->PointDetectLandmarks(gray_img_data, face_infoex.info, face_mark.mark);
+				}
+				face_infoex.mean = m;
+				face_infoex.std = sd;
+				return face_infos.size();
+			}
+			catch (std::exception e)
+			{
+				MLOG << "faceDetector::detect failed\n";
+				return -1;
+			}
+			catch (...)
+			{
+				MLOG << "faceDetector::detect failed\n";
+				return -1;
+			}
+		}
+
+		int detect(std::string img_path,
+			tools::faceInfoEx & face_infoex,
+			tools::faceLandMark & face_mark)
+		{
+			if (p_face_detector == 0 || p_point_detector == 0)
+			{
+				MLOG << "faceDetector::detect failed\n";
+				return -1;
+			}
+			try
+			{
+				cv::Mat img = cv::imread(img_path);
+				cv::Mat gray_img;
+				cv::cvtColor(img, gray_img, CV_RGB2GRAY);
+				seeta::ImageData gray_img_data(
+					gray_img.cols, gray_img.rows, gray_img.channels());
+				gray_img_data.data = gray_img.data;
+
+				cv::Mat tmp_m, tmp_sd;
+				double m = 0, sd = 0;
+				cv::meanStdDev(gray_img, tmp_m, tmp_sd);
+				m = tmp_m.at<double>(0, 0) / 256;
+				sd = tmp_sd.at<double>(0, 0) / 256;
+
+				face_infoex.exist = false;
+
+				std::vector <seeta::FaceInfo> face_infos;
+				face_infos = p_face_detector->Detect(gray_img_data);
+				if (face_infos.size()>=1)
+				{
+					face_infoex.exist = true;
+					face_infoex = face_infos.at(0);
+					p_point_detector->PointDetectLandmarks(gray_img_data, face_infoex.info, face_mark.mark);
+				}
+				face_infoex.mean = m;
+				face_infoex.std = sd;
+				return face_infos.size();
+			}
+			catch (std::exception e)
+			{
+				MLOG << "faceDetector::detect failed\n";
+				return -1;
+			}
+			catch (...)
+			{
+				MLOG << "faceDetector::detect failed\n";
 				return -1;
 			}
 		}
@@ -224,7 +378,7 @@ namespace tools
 		{
 			if (feat_size == 0)
 			{
-				std::cout << "faceDetector::corp failed\n";
+				MLOG<< "faceDetector::corp failed\n";
 				return;
 			}
 			try
@@ -233,12 +387,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
-				std::cout << "faceDetector::corp failed\n";
+				MLOG<< "faceDetector::corp failed\n";
 				return;
 			}
 			catch (...)
 			{
-				std::cout << "faceDetector::corp failed\n";
+				MLOG<< "faceDetector::corp failed\n";
 				return;
 			}
 		}
@@ -249,26 +403,26 @@ namespace tools
 		{
 			if (feat_size == 0)
 			{
-				std::cout << "faceDetector::corp failed\n";
+				MLOG<< "faceDetector::corp failed\n";
 				return;
 			}
 			try
 			{
 				seeta::ImageData img_data(img.cols, img.rows, img.channels());
 				img_data.data = img.data;
-				cv::Mat& corp_img = cv::Mat(face_rows,face_cols,CV_8UC(face_chn));
+				corp_img = cv::Mat(face_rows,face_cols,CV_8UC(face_chn));
 				seeta::ImageData corp_img_data(corp_img.cols, corp_img.rows, corp_img.channels());
 				corp_img_data.data = corp_img.data;
 				face_recognizer.CropFace(img_data, face_mark.mark, corp_img_data);
 			}
 			catch (std::exception e)
 			{
-				std::cout << "faceDetector::corp failed\n";
+				MLOG<< "faceDetector::corp failed\n";
 				return;
 			}
 			catch (...)
 			{
-				std::cout << "faceDetector::corp failed\n";
+				MLOG<< "faceDetector::corp failed\n";
 				return;
 			}
 		}
@@ -284,10 +438,10 @@ namespace tools
 				face_recognizer.ExtractFeature(corp_img, fea);
 			}
 			catch (std::exception e) {
-				std::cout << "faceDetector::getfeature failed\n";
+				MLOG<< "faceDetector::getfeature failed\n";
 			}
 			catch (...) {
-				std::cout << "faceDetector::getfeature failed\n";
+				MLOG<< "faceDetector::getfeature failed\n";
 			}
 		}
 
@@ -299,17 +453,32 @@ namespace tools
 				face_recognizer.ExtractFeature(img_data, fea);
 			}
 			catch (std::exception e) {
-				std::cout << "faceDetector::getfeature failed\n";
+				MLOG<< "faceDetector::getfeature failed\n";
 			}
 			catch (...) {
-				std::cout << "faceDetector::getfeature failed\n";
+				MLOG<< "faceDetector::getfeature failed\n";
+			}
+		}
+
+		void get_corp_feature(cv::Mat img, tools::faceLandMark face_mark, float* fea) {
+			try
+			{
+				seeta::ImageData img_data(img.cols, img.rows, img.channels());
+				img_data.data = img.data;
+				face_recognizer.ExtractFeatureWithCrop(img_data, face_mark.mark, fea);
+			}
+			catch (std::exception e) {
+				MLOG << "faceDetector::get_corp_feature failed\n";
+			}
+			catch (...) {
+				MLOG << "faceDetector::get_corp_feature failed\n";
 			}
 		}
 
 		float compare(float* fea1, float* fea2)
 		{
 			if (feat_size == 0) {
-				std::cout << "faceDetector::compare failed\n";
+				MLOG<< "faceDetector::compare failed\n";
 				return false;
 			}
 			try
@@ -320,12 +489,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
-				std::cout << "faceDetector::compare failed\n";
+				MLOG<< "faceDetector::compare failed\n";
 				return -1;
 			}
 			catch (...)
 			{
-				std::cout << "faceDetector::compare failed\n";
+				MLOG<< "faceDetector::compare failed\n";
 				return -1;
 			}
 		}
@@ -334,7 +503,7 @@ namespace tools
 			const seeta::ImageData img2)
 		{
 			if (feat_size == 0) {
-				std::cout << "faceDetector::compare failed\n";
+				MLOG<< "faceDetector::compare failed\n";
 				return false;
 			}
 			try
@@ -353,12 +522,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
-				std::cout << "faceDetector::compare failed\n";
+				MLOG<< "faceDetector::compare failed\n";
 				return -1;
 			}
 			catch (...)
 			{
-				std::cout << "faceDetector::compare failed\n";
+				MLOG<< "faceDetector::compare failed\n";
 				return -1;
 			}
 		}
@@ -367,7 +536,7 @@ namespace tools
 			const cv::Mat img2)
 		{
 			if (feat_size == 0) {
-				std::cout << "faceDetector::compare failed\n";
+				MLOG<< "faceDetector::compare failed\n";
 				return false;
 			}
 			try
@@ -390,12 +559,12 @@ namespace tools
 			}
 			catch (std::exception e)
 			{
-				std::cout << "faceDetector::compare failed\n";
+				MLOG<< "faceDetector::compare failed\n";
 				return -1;
 			}
 			catch (...)
 			{
-				std::cout << "faceDetector::compare failed\n";
+				MLOG<< "faceDetector::compare failed\n";
 				return -1;
 			}
 		}
@@ -406,7 +575,7 @@ namespace tools
 			seeta::FacialLandmark face2_marks[5])
 		{
 			if (feat_size == 0) {
-				std::cout << "faceDetector::corp_compare failed\n";
+				MLOG<< "faceDetector::corp_compare failed\n";
 				return false;
 			}
 			try
@@ -417,7 +586,7 @@ namespace tools
 				long t1 = cv::getTickCount();
 				double secs = (t1 - t0) / cv::getTickFrequency();
 				std::string debugStr = tools::f_to_s(secs);
-				OutputDebugStringA(("ExtractFeatureWithCrop take time = " + debugStr + "\n").c_str());
+				MLOG<<("ExtractFeatureWithCrop take time = " + debugStr + "\n").c_str();
 
 				float *fea2 = new float[feat_size];
 				t0 = cv::getTickCount();
@@ -425,7 +594,7 @@ namespace tools
 				t1 = cv::getTickCount();
 				secs = (t1 - t0) / cv::getTickFrequency();
 				debugStr = tools::f_to_s(secs);
-				OutputDebugStringA(("ExtractFeatureWithCrop take time = " + debugStr + "\n").c_str());
+				MLOG<<("ExtractFeatureWithCrop take time = " + debugStr + "\n").c_str();
 
 				// Caculate similarity of two faces
 				t0 = cv::getTickCount();
@@ -433,19 +602,131 @@ namespace tools
 				t1 = cv::getTickCount();
 				secs = (t1 - t0) / cv::getTickFrequency();
 				debugStr = tools::f_to_s(secs);
-				OutputDebugStringA(("CalcSimilarity take time = " + debugStr + "\n").c_str());
+				MLOG<<("CalcSimilarity take time = " + debugStr + "\n").c_str();
 				delete[] fea1;
 				delete[] fea2;
 				return sim;
 			}
 			catch (std::exception e)
 			{
-				std::cout << "faceDetector::corp_compare failed\n";
+				MLOG<< "faceDetector::corp_compare failed\n";
 				return -1;
 			}
 			catch (...)
 			{
-				std::cout << "faceDetector::corp_compare failed\n";
+				MLOG<< "faceDetector::corp_compare failed\n";
+				return -1;
+			}
+		}
+
+		float corp_compare(const cv::Mat img1,
+			const cv::Mat img2,
+			seeta::FacialLandmark face1_marks[5],
+			seeta::FacialLandmark face2_marks[5])
+		{
+			if (feat_size == 0) {
+				MLOG << "faceDetector::corp_compare failed\n";
+				return false;
+			}
+			try
+			{
+				seeta::ImageData img_data1(img1.cols, img1.rows, img1.channels());
+				img_data1.data = img1.data;
+				seeta::ImageData img_data2(img2.cols, img2.rows, img2.channels());
+				img_data2.data = img2.data;
+
+				float *fea1 = new float[feat_size];
+				long t0 = cv::getTickCount();
+				face_recognizer.ExtractFeatureWithCrop(img_data1, face1_marks, fea1);
+				long t1 = cv::getTickCount();
+				double secs = (t1 - t0) / cv::getTickFrequency();
+				std::string debugStr = tools::f_to_s(secs);
+				MLOG << ("ExtractFeatureWithCrop take time = " + debugStr + "\n").c_str();
+
+				float *fea2 = new float[feat_size];
+				t0 = cv::getTickCount();
+				face_recognizer.ExtractFeatureWithCrop(img_data2, face2_marks, fea2);
+				t1 = cv::getTickCount();
+				secs = (t1 - t0) / cv::getTickFrequency();
+				debugStr = tools::f_to_s(secs);
+				MLOG << ("ExtractFeatureWithCrop take time = " + debugStr + "\n").c_str();
+
+				// Caculate similarity of two faces
+				t0 = cv::getTickCount();
+				float sim = face_recognizer.CalcSimilarity(fea1, fea2);
+				t1 = cv::getTickCount();
+				secs = (t1 - t0) / cv::getTickFrequency();
+				debugStr = tools::f_to_s(secs);
+				MLOG << ("CalcSimilarity take time = " + debugStr + "\n").c_str();
+				delete[] fea1;
+				delete[] fea2;
+				return sim;
+			}
+			catch (std::exception e)
+			{
+				MLOG << "faceDetector::corp_compare failed\n";
+				return -1;
+			}
+			catch (...)
+			{
+				MLOG << "faceDetector::corp_compare failed\n";
+				return -1;
+			}
+		}
+
+		float corp_compare(std::string img_path1,
+			std::string img_path2,
+			seeta::FacialLandmark face1_marks[5],
+			seeta::FacialLandmark face2_marks[5])
+		{
+			if (feat_size == 0) {
+				MLOG << "faceDetector::corp_compare failed\n";
+				return false;
+			}
+			try
+			{
+				cv::Mat img1 = cv::imread(img_path1);
+				seeta::ImageData img_data1(img1.cols, img1.rows, img1.channels());
+				img_data1.data = img1.data;
+				cv::Mat img2 = cv::imread(img_path2);
+				seeta::ImageData img_data2(img2.cols, img2.rows, img2.channels());
+				img_data2.data = img2.data;
+
+				float *fea1 = new float[feat_size];
+				long t0 = cv::getTickCount();
+				face_recognizer.ExtractFeatureWithCrop(img_data1, face1_marks, fea1);
+				long t1 = cv::getTickCount();
+				double secs = (t1 - t0) / cv::getTickFrequency();
+				std::string debugStr = tools::f_to_s(secs);
+				//MLOG << ("ExtractFeatureWithCrop take time = " + debugStr + "\n").c_str();
+
+				float *fea2 = new float[feat_size];
+				t0 = cv::getTickCount();
+				face_recognizer.ExtractFeatureWithCrop(img_data2, face2_marks, fea2);
+				t1 = cv::getTickCount();
+				secs = (t1 - t0) / cv::getTickFrequency();
+				debugStr = tools::f_to_s(secs);
+				//MLOG << ("ExtractFeatureWithCrop take time = " + debugStr + "\n").c_str();
+
+				// Caculate similarity of two faces
+				t0 = cv::getTickCount();
+				float sim = face_recognizer.CalcSimilarity(fea1, fea2);
+				t1 = cv::getTickCount();
+				secs = (t1 - t0) / cv::getTickFrequency();
+				debugStr = tools::f_to_s(secs);
+				//MLOG << ("CalcSimilarity take time = " + debugStr + "\n").c_str();
+				delete[] fea1;
+				delete[] fea2;
+				return sim;
+			}
+			catch (std::exception e)
+			{
+				MLOG << "faceDetector::corp_compare failed\n";
+				return -1;
+			}
+			catch (...)
+			{
+				MLOG << "faceDetector::corp_compare failed\n";
 				return -1;
 			}
 		}

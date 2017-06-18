@@ -311,11 +311,23 @@ void CPokerFaceDlg::OnBnClickedCopBtn()
 			face_rect.width = face_info1[i].bbox.width;
 			face_rect.height = face_info1[i].bbox.height;
 			cv::rectangle(image1, face_rect, CV_RGB(0, 255, 255), 1, 8, 0);
-			for (int k = 0; k < 5; k++)
-			{
-				cv::circle(image1, cv::Point(face_marks1.at(i).mark[k].x, face_marks1.at(i).mark[k].y), 4,
+			//for (int k = 0; k < 5; k++)
+			//{
+			//	cv::circle(image1, cv::Point(face_marks1.at(i).mark[k].x, face_marks1.at(i).mark[k].y), 4,
+			//		CV_RGB(0, 255, 255), 1);
+			//}
+				cv::circle(image1, cv::Point(face_marks1.at(i).mark[0].x, face_marks1.at(i).mark[0].y), 4,
+					CV_RGB(255, 0, 0), 1);
+				cv::circle(image1, cv::Point(face_marks1.at(i).mark[1].x, face_marks1.at(i).mark[1].y), 4,
+					CV_RGB(0, 255, 0), 1);
+				cv::circle(image1, cv::Point(face_marks1.at(i).mark[2].x, face_marks1.at(i).mark[2].y), 4,
+					CV_RGB(0, 0, 255), 1);
+				cv::circle(image1, cv::Point(face_marks1.at(i).mark[3].x, face_marks1.at(i).mark[3].y), 4,
+					CV_RGB(255, 255, 0), 1);
+				cv::circle(image1, cv::Point(face_marks1.at(i).mark[4].x, face_marks1.at(i).mark[4].y), 4,
+					CV_RGB(255, 0, 255), 1);
+				cv::circle(image1, cv::Point(face_marks1.at(i).mark[5].x, face_marks1.at(i).mark[5].y), 4,
 					CV_RGB(0, 255, 255), 1);
-			}
 		}
 		Update(0);
 		for (int i = 0; i < face_info2.size(); i++)
