@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGUID>{38A1FBC9-5670-3DC4-9F34-4D1DE96CF3C2}</ProjectGUID>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>stasm</ProjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)\lib</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)\inter\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stasm_d</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)\lib</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)\inter\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stasm</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ExecutablePath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(ProjectDir)..\..\Third\opencv_320\include;$(ProjectDir)..\..\Third\opencv_320\include\opencv;$(ProjectDir)..\..\Third\opencv_320\include\opencv2;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ExecutablePath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(ProjectDir)..\..\Third\opencv_320\include;$(ProjectDir)..\..\Third\opencv_320\include\opencv;$(ProjectDir)..\..\Third\opencv_320\include\opencv2;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(ProjectDir)..\..\Third\opencv_320\x64\vc14\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1;WIN32;_WINDOWS;_DEBUG;WIN64;IGTB_EXPORTS;_WIN32_WINNT=0x0501;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;WIN64;IGTB_EXPORTS;_WIN32_WINNT=0x0501;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\ProgramFiles\opencv2411\build\include;D:\ProgramFiles\opencv2411\build\include\opencv;E:\Project\pokerFace\Third\stasm4.1.0\stasm;E:\Project\pokerFace\Third\stasm4.1.0\stasm\MOD_1;E:\Project\pokerFace\Third\stasm4.1.0\apps\shapefile;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\ProgramFiles\opencv2411\build\include;D:\ProgramFiles\opencv2411\build\include\opencv;E:\Project\pokerFace\Third\stasm4.1.0\stasm;E:\Project\pokerFace\Third\stasm4.1.0\stasm\MOD_1;E:\Project\pokerFace\Third\stasm4.1.0\apps\shapefile;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions> /machine:x64 %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1;WIN32;_WINDOWS;NDEBUG;WIN64;IGTB_EXPORTS;_WIN32_WINNT=0x0501;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;WIN64;IGTB_EXPORTS;_WIN32_WINNT=0x0501;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\ProgramFiles\opencv2411\build\include;D:\ProgramFiles\opencv2411\build\include\opencv;E:\Project\pokerFace\Third\stasm4.1.0\stasm;E:\Project\pokerFace\Third\stasm4.1.0\stasm\MOD_1;E:\Project\pokerFace\Third\stasm4.1.0\apps\shapefile;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\ProgramFiles\opencv2411\build\include;D:\ProgramFiles\opencv2411\build\include\opencv;E:\Project\pokerFace\Third\stasm4.1.0\stasm;E:\Project\pokerFace\Third\stasm4.1.0\stasm\MOD_1;E:\Project\pokerFace\Third\stasm4.1.0\apps\shapefile;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions> /machine:x64 %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="stasm\asm.cpp" />
+    <ClCompile Include="stasm\classicdesc.cpp" />
+    <ClCompile Include="stasm\convshape.cpp" />
+    <ClCompile Include="stasm\err.cpp" />
+    <ClCompile Include="stasm\eyedet.cpp" />
+    <ClCompile Include="stasm\eyedist.cpp" />
+    <ClCompile Include="stasm\faceroi.cpp" />
+    <ClCompile Include="stasm\hat.cpp" />
+    <ClCompile Include="stasm\hatdesc.cpp" />
+    <ClCompile Include="stasm\landmarks.cpp" />
+    <ClCompile Include="stasm\misc.cpp" />
+    <ClCompile Include="stasm\MOD_1\facedet.cpp" />
+    <ClCompile Include="stasm\MOD_1\initasm.cpp" />
+    <ClCompile Include="stasm\pinstart.cpp" />
+    <ClCompile Include="stasm\print.cpp" />
+    <ClCompile Include="stasm\shape17.cpp" />
+    <ClCompile Include="stasm\shapehacks.cpp" />
+    <ClCompile Include="stasm\shapemod.cpp" />
+    <ClCompile Include="stasm\startshape.cpp" />
+    <ClCompile Include="stasm\stasm.cpp" />
+    <ClCompile Include="stasm\stasm_lib.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="E:/Project/pokerFace/Third/stasm4.1.0_vc14_64/ZERO_CHECK.vcxproj">
+      <Project>043CF794-2CAB-3457-AD01-CA9E992F00E3</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stasm\asm.h" />
+    <ClInclude Include="stasm\classicdesc.h" />
+    <ClInclude Include="stasm\convshape.h" />
+    <ClInclude Include="stasm\err.h" />
+    <ClInclude Include="stasm\eyedet.h" />
+    <ClInclude Include="stasm\eyedist.h" />
+    <ClInclude Include="stasm\faceroi.h" />
+    <ClInclude Include="stasm\hat.h" />
+    <ClInclude Include="stasm\hatdesc.h" />
+    <ClInclude Include="stasm\landmarks.h" />
+    <ClInclude Include="stasm\misc.h" />
+    <ClInclude Include="stasm\MOD_1\facedet.h" />
+    <ClInclude Include="stasm\MOD_1\initasm.h" />
+    <ClInclude Include="stasm\pinstart.h" />
+    <ClInclude Include="stasm\print.h" />
+    <ClInclude Include="stasm\shape17.h" />
+    <ClInclude Include="stasm\shapehacks.h" />
+    <ClInclude Include="stasm\shapemod.h" />
+    <ClInclude Include="stasm\startshape.h" />
+    <ClInclude Include="stasm\stasm.h" />
+    <ClInclude Include="stasm\stasm_lib.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
