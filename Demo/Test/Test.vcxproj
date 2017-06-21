@@ -92,7 +92,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Include\face_tools.hpp" />
     <ClInclude Include="..\..\Include\image_tools.hpp" />
     <ClInclude Include="..\..\Include\stasm_lib.h" />
     <ClInclude Include="stdafx.h" />

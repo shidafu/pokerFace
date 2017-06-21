@@ -5,13 +5,14 @@
 #include<iostream>
 #include <opencv/cv.hpp>
 #include "common_tools.hpp"
-#include "face_tools.hpp"
+//#include "face_tools.hpp"
 #include "image_tools.hpp"
 #include "stasm_lib.h"
+#include "mlog.hpp"
 //#include "json.h"
 
 //Load faceTool.
-tools::faceDetector face_detector;
+//tools::faceDetector face_detector;
 
 bool showImg = true;
 
@@ -418,14 +419,12 @@ int main(int argc, char* argv[])
 	std::ofstream fout;
 	fout.open(out_path, std::ofstream::out | std::ofstream::app);
 	int* face_num1 = new int[files1.size()];
-	std::vector <tools::faceInfoEx> face_infos1;
-	std::vector <tools::faceLandMark77> face_marks77_1;
+	std::vector <faceLandMark77> face_marks77_1;
 	float** face_feas1 = new float*[files1.size()];
 	for (int i = 0; i < files1.size(); i++)
 	{
 		face_num1[i] = 0;
-		face_infos1.push_back(*(new tools::faceInfoEx()));
-		face_marks77_1.push_back(*(new tools::faceLandMark77()));
+		face_marks77_1.push_back(*(new faceLandMark77()));
 		face_feas1[i] = new float[face_feats];
 		for (int j = 0; j < face_feats; j++)
 		{
@@ -433,14 +432,12 @@ int main(int argc, char* argv[])
 		}
 	}
 	int* face_num2 = new int[files2.size()];
-	std::vector <tools::faceInfoEx> face_infos2;
-	std::vector <tools::faceLandMark77> face_marks77_2;
+	std::vector <faceLandMark77> face_marks77_2;
 	float** face_feas2 = new float*[files2.size()];
 	for (int i = 0; i < files2.size(); i++)
 	{
 		face_num2[i] = 0;
-		face_infos2.push_back(*(new tools::faceInfoEx()));
-		face_marks77_2.push_back(*(new tools::faceLandMark77()));
+		face_marks77_2.push_back(*(new faceLandMark77()));
 		face_feas2[i] = new float[face_feats];
 		for (int j = 0; j < face_feats; j++)
 		{

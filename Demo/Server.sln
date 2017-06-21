@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcxproj", "{1FE46F90-730C-426E-BA58-23747C1847C4}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServerWss", "ServerWss\ServerWss.vcxproj", "{EC4B4C3E-A4B7-4CB0-8757-2A02A05F541D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ServerBoth", "ServerBoth\ServerBoth.vcxproj", "{8306BB7E-45B7-4C3D-8468-D9A9947199CA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PokerFace", "PokerFace\PokerFace.vcxproj", "{4EA8A7F9-FB00-44FB-9430-AE3CBEBD74EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,12 @@ Global
 		{8306BB7E-45B7-4C3D-8468-D9A9947199CA}.Release|x64.ActiveCfg = Release|x64
 		{8306BB7E-45B7-4C3D-8468-D9A9947199CA}.Release|x64.Build.0 = Release|x64
 		{8306BB7E-45B7-4C3D-8468-D9A9947199CA}.Release|x86.ActiveCfg = Release|x64
+		{4EA8A7F9-FB00-44FB-9430-AE3CBEBD74EA}.Debug|x64.ActiveCfg = Debug|x64
+		{4EA8A7F9-FB00-44FB-9430-AE3CBEBD74EA}.Debug|x64.Build.0 = Debug|x64
+		{4EA8A7F9-FB00-44FB-9430-AE3CBEBD74EA}.Debug|x86.ActiveCfg = Debug|x64
+		{4EA8A7F9-FB00-44FB-9430-AE3CBEBD74EA}.Release|x64.ActiveCfg = Release|x64
+		{4EA8A7F9-FB00-44FB-9430-AE3CBEBD74EA}.Release|x64.Build.0 = Release|x64
+		{4EA8A7F9-FB00-44FB-9430-AE3CBEBD74EA}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
