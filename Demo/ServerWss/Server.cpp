@@ -227,7 +227,7 @@ void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 
 					// Detect face.
 					std::vector <seeta::FaceInfo> face_info1;
-					std::vector <tools::faceLandMark> face_marks1;
+					std::vector <tools::faceLandMark5> face_marks1;
 					long t0 = cv::getTickCount();
 					bool isOK = face_detector.detect(gray_img_data1, face_info1, face_marks1);
 					long t1 = cv::getTickCount();
@@ -235,7 +235,7 @@ void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 					std::cout << "Detect: " << face_info1.size() << " face,take " << secs << " seconds." << std::endl;
 
 					std::vector <seeta::FaceInfo> face_info2;
-					std::vector <tools::faceLandMark> face_marks2;
+					std::vector <tools::faceLandMark5> face_marks2;
 					t0 = cv::getTickCount();
 					isOK = face_detector.detect(gray_img_data2, face_info2, face_marks2);
 					t1 = cv::getTickCount();
@@ -336,7 +336,7 @@ void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 
 					// Detect face.
 					std::vector <seeta::FaceInfo> face_info1;
-					std::vector <tools::faceLandMark> face_marks1;
+					std::vector <tools::faceLandMark5> face_marks1;
 					long t0 = cv::getTickCount();
 					bool isOK = face_detector.detect(gray_img_data1, face_info1, face_marks1);
 					long t1 = cv::getTickCount();
@@ -437,7 +437,7 @@ void on_message(server* c, websocketpp::connection_hdl hdl, message_ptr msg) {
 
 					// Detect face.
 					std::vector <seeta::FaceInfo> face_info2;
-					std::vector <tools::faceLandMark> face_marks2;
+					std::vector <tools::faceLandMark5> face_marks2;
 					long t0 = cv::getTickCount();
 					bool isOK = face_detector.detect(gray_img_data2, face_info2, face_marks2);
 					long t1 = cv::getTickCount();

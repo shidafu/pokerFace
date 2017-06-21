@@ -12,6 +12,7 @@
 #include "face_detection.h"
 #include "face_alignment.h"
 #include "face_identification.h"
+#include "stasm_lib.h"
 #include "common.h"
 #include "mformat.hpp"
 #include "mlog.hpp"
@@ -37,10 +38,10 @@ namespace tools
 	sizeSetting accept_size_9X16 = { 270,180,40 };
 #endif
 
-	struct faceLandMark
+	struct faceLandMark5
 	{
 		seeta::FacialLandmark mark[5];
-		faceLandMark()
+		faceLandMark5()
 		{
 			for (int i=0;i<5;i++)
 			{
@@ -48,12 +49,34 @@ namespace tools
 				mark[i].y = -1;
 			}
 		}
-		faceLandMark& operator =(const faceLandMark& fLandMark)
+		faceLandMark5& operator =(const faceLandMark5& fLandMark)
 		{
 			for (int i = 0; i < 5; i++)
 			{
 				mark[i].x = fLandMark.mark[i].x;
 				mark[i].y = fLandMark.mark[i].y;
+			}
+			return *this;
+		}
+	};
+
+	struct faceLandMark77
+	{
+		float marks[2* stasm_NLANDMARKS];
+		faceLandMark77()
+		{
+			for (int i = 0; i<stasm_NLANDMARKS; i++)
+			{
+				marks[i * 2] = -1;
+				marks[i * 2 + 1] = -1;
+			}
+		}
+		faceLandMark77& operator =(const faceLandMark77& fLandMark)
+		{
+			for (int i = 0; i < stasm_NLANDMARKS; i++)
+			{
+				marks[i * 2] = fLandMark.marks[i * 2];
+				marks[i * 2 + 1] = fLandMark.marks[i * 2 + 1];
 			}
 			return *this;
 		}
@@ -155,7 +178,8 @@ namespace tools
 		bool initial(sizeSetting ac_size, 
 			const char* fd, 
 			const char* fa,
-			const char*fi)
+			const char* fi,
+			const char* fs)
 		{
 			try
 			{
@@ -176,6 +200,8 @@ namespace tools
 				face_rows = face_recognizer.crop_height();
 				face_cols = face_recognizer.crop_width();
 				face_chn = face_recognizer.crop_channels();
+
+				stasm_init(fs, 0);
 				return true;
 			}
 			catch (std::exception e)
@@ -192,7 +218,7 @@ namespace tools
 
 		int detect(const seeta::ImageData img,
 			std::vector <seeta::FaceInfo> & face_info,
-			std::vector <tools::faceLandMark> & face_marks)
+			std::vector <tools::faceLandMark5> & face_marks)
 		{
 			if (p_face_detector == 0 || p_point_detector == 0)
 			{
@@ -204,9 +230,9 @@ namespace tools
 				face_info = p_face_detector->Detect(img);
 				for (int i = 0; i < face_info.size(); i++)
 				{
-					tools::faceLandMark faceLandMark;
-					p_point_detector->PointDetectLandmarks(img, face_info.at(i), faceLandMark.mark);
-					face_marks.push_back(faceLandMark);
+					tools::faceLandMark5 faceLandMark5;
+					p_point_detector->PointDetectLandmarks(img, face_info.at(i), faceLandMark5.mark);
+					face_marks.push_back(faceLandMark5);
 				}
 				return face_info.size();
 			}
@@ -224,7 +250,7 @@ namespace tools
 
 		int detect(cv::Mat img,
 			std::vector <seeta::FaceInfo> & face_info,
-			std::vector <tools::faceLandMark> & face_marks)
+			std::vector <tools::faceLandMark5> & face_marks)
 		{
 			if (p_face_detector == 0 || p_point_detector == 0)
 			{
@@ -238,9 +264,9 @@ namespace tools
 				face_info = p_face_detector->Detect(img_data);
 				for (int i = 0; i < face_info.size(); i++)
 				{
-					tools::faceLandMark faceLandMark;
-					p_point_detector->PointDetectLandmarks(img_data, face_info.at(i), faceLandMark.mark);
-					face_marks.push_back(faceLandMark);
+					tools::faceLandMark5 faceLandMark5;
+					p_point_detector->PointDetectLandmarks(img_data, face_info.at(i), faceLandMark5.mark);
+					face_marks.push_back(faceLandMark5);
 				}
 				return face_info.size();
 			}
@@ -258,7 +284,7 @@ namespace tools
 
 		int detect(cv::Mat& img,
 			tools::faceInfoEx & face_infoex,
-			tools::faceLandMark & face_mark)
+			tools::faceLandMark5 & face_mark)
 		{
 			if (p_face_detector == 0 || p_point_detector == 0)
 			{
@@ -307,7 +333,7 @@ namespace tools
 
 		int detect(std::string img_path,
 			tools::faceInfoEx & face_infoex,
-			tools::faceLandMark & face_mark)
+			tools::faceLandMark5 & face_mark)
 		{
 			if (p_face_detector == 0 || p_point_detector == 0)
 			{
@@ -316,7 +342,7 @@ namespace tools
 			}
 			try
 			{
-				cv::Mat img = cv::imread(img_path);
+				cv::Mat img = cv::imread(img_path, cv::IMREAD_COLOR);
 				cv::Mat gray_img;
 				cv::cvtColor(img, gray_img, CV_RGB2GRAY);
 				seeta::ImageData gray_img_data(
@@ -373,7 +399,7 @@ namespace tools
 		@param[out]  corp_img: buffer presized.
 		*/
 		void corp(const seeta::ImageData& img,
-			tools::faceLandMark face_mark,
+			tools::faceLandMark5 face_mark,
 			const seeta::ImageData& corp_img)
 		{
 			if (feat_size == 0)
@@ -398,7 +424,7 @@ namespace tools
 		}
 
 		void corp(cv::Mat& img,
-			tools::faceLandMark face_mark,
+			tools::faceLandMark5 face_mark,
 			cv::Mat& corp_img)
 		{
 			if (feat_size == 0)
@@ -460,7 +486,7 @@ namespace tools
 			}
 		}
 
-		void get_corp_feature(cv::Mat img, tools::faceLandMark face_mark, float* fea) {
+		void get_corp_feature(cv::Mat img, tools::faceLandMark5 face_mark, float* fea) {
 			try
 			{
 				seeta::ImageData img_data(img.cols, img.rows, img.channels());
